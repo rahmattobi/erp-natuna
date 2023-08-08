@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\TimelineController;
 
 /*
@@ -47,10 +48,25 @@ Route::middleware(['auth'])->group(function () {
     Route::controller(InvoiceController::class)->prefix('invoice')->group(function (){
         Route::get('', 'index')->name('invoice.index');
         Route::get('input', 'create')->name('invoice.input');
+        Route::get('inputDetail/{id}', 'inputDetail')->name('invoice.inputDetail');
         Route::post('', 'store')->name('invoice.action');
-        Route::get('invoiceDetail/{id}', 'show')->name('invoice.view');
-        // // Route::get('', 'edit/{id}')->name('invoice.edit');
-        // // Route::delete('', 'destroy/{id}')->name('invoice.delete');
+        Route::post('{id}', 'actionDetail')->name('invoice.actionDetail');
+        Route::get('edit/{id}', 'edit')->name('invoice.edit');
+        Route::get('editDetail/{id}', 'editDetail')->name('invoice.editDetail');
+        Route::put('edit/{id}', 'update')->name('invoice.update');
+        Route::put('edit/{id}', 'updateDetail')->name('invoice.updateDetail');
+        Route::delete('deleteInvoiceDetail/{id}', 'deleteInvoiceDetail')->name('invoice.deleteDetail');
+        Route::get('{id}', 'show')->name('invoice.view');
+        Route::get('{id}/print'  , 'generatePdf')->name('invoice.print');
+        Route::delete('destroy/{id}', 'destroy')->name('invoice.delete');
+    });
+
+    Route::controller(KaryawanController::class)->prefix('user')->group(function (){
+        Route::get('', 'index')->name('user.index');
+        Route::post('', 'store')->name('user.action');
+        Route::get('edit/{id}', 'edit')->name('user.edit');
+        Route::put('edit/{id}', 'update')->name('user.update');
+        Route::delete('destroy/{id}', 'destroy')->name('user.delete');
     });
 
 });

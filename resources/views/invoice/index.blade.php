@@ -33,7 +33,6 @@
                                 <th>Tanggal</th>
                                 <th>No. Invoice</th>
                                 <th>Jatuh Tempo</th>
-                                <th>Total Harga</th>
                                 <th style="width: 100px">Action</th>
                             </tr>
                         </thead>
@@ -44,19 +43,17 @@
                                 <th>Tanggal</th>
                                 <th>No. Invoice</th>
                                 <th>Jatuh Tempo</th>
-                                <th>Total Harga</th>
                                 <th style="width: 100px">Action</th>
                             </tr>
                         </tfoot>
                         <tbody>
-                            @foreach ($invoice as $invoice)
+                            @foreach ($invoices as $invoice)
                                 <tr>
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
                                     <td>{{ $invoice->tanggal }}</td>
                                     <td>{{ $invoice->no_inv }}</td>
                                     <td>{{ $invoice->tempo }}</td>
-                                    <td>100</td>
                                     {{-- <td class="show-read-more">{{ $invoice->end }}</td> --}}
                                     {{-- <td>
                                         @if ($invoice->category == 0)
@@ -70,7 +67,7 @@
                                             <a href="{{ route('invoice.view', $invoice->id)}}">
                                                 <button class="btn btn-info"><i class="fas fa-eye"></i></button>
                                             </a>
-                                            <a href="{{ route('invoice.view', $invoice->id)}}">
+                                            <a href="{{ route('invoice.edit', $invoice->id)}}">
                                                 <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
                                             </a>
                                             <a href="{{ route('invoice.view', $invoice->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
@@ -95,7 +92,7 @@
                                     <div class="modal-body">Do you really want to delete these record ? this process cannot be undone.</div>
                                     <div class="modal-footer">
                                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                                        <form action="{{ route('timeline.delete', $invoice->id) }}" method="POST" id="deleteForm">
+                                        <form action="{{ route('invoice.delete', $invoice->id) }}" method="POST" id="deleteForm">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-danger">Delete</button>

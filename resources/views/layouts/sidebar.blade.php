@@ -16,7 +16,21 @@
     <li class="nav-item">
         <a class="nav-link" href="{{ route('dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span>DASHBOARD</span></a>
+    </li>
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        ADMIN
+    </div>
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('user.index') }}">
+            <i class="fas fa-fw fa-user"></i>
+            <span>USER</span></a>
     </li>
 
     <!-- Divider -->
@@ -24,14 +38,14 @@
 
     <!-- Heading -->
     <div class="sidebar-heading">
-        Marketing
+        MARKETING
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
     <li class="nav-item">
         <a class="nav-link" href="{{ route('timeline') }}">
             <i class="fas fa-fw fa-chart-area"></i>
-            <span>Timelines</span></a>
+            <span>TIMELINES</span></a>
     </li>
 
        <!-- Divider -->
@@ -39,14 +53,14 @@
 
        <!-- Heading -->
        <div class="sidebar-heading">
-           Finance
+           FINANCE
        </div>
 
        <!-- Nav Item - Pages Collapse Menu -->
        <li class="nav-item">
            <a class="nav-link" href="{{ route('invoice.index') }}">
                <i class="fas fa-fw fa-chart-area"></i>
-               <span>Invoice</span></a>
+               <span>INVOICE</span></a>
        </li>
 
 
