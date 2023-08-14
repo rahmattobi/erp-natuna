@@ -53,11 +53,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{id}', 'actionDetail')->name('invoice.actionDetail');
         Route::get('edit/{id}', 'edit')->name('invoice.edit');
         Route::get('editDetail/{id}', 'editDetail')->name('invoice.editDetail');
-        Route::put('edit/{id}', 'update')->name('invoice.update');
+        Route::put('update/{id}', 'update')->name('invoice.update');
         Route::put('edit/{id}', 'updateDetail')->name('invoice.updateDetail');
         Route::delete('deleteInvoiceDetail/{id}', 'deleteInvoiceDetail')->name('invoice.deleteDetail');
         Route::get('{id}', 'show')->name('invoice.view');
         Route::get('{id}/print'  , 'generatePdf')->name('invoice.print');
+        Route::get('{id}/view'  , 'viewInvoice')->name('invoice.viewInvoice');
         Route::delete('destroy/{id}', 'destroy')->name('invoice.delete');
     });
 

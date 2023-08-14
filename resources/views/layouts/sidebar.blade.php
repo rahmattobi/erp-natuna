@@ -41,11 +41,24 @@
         MARKETING
     </div>
 
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne"
+            aria-expanded="true" aria-controls="collapseOne">
+            <i class="fas fa-fw fa-chart-area"></i>
+            <span>MARKETING</span>
+        </a>
+        <div id="collapseOne" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Timeline Components:</h6>
+                <a class="collapse-item" href="{{ route('timeline') }}">Timelines</a>
+            </div>
+        </div>
+    </li>
+
     <!-- Nav Item - Pages Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link" href="{{ route('timeline') }}">
-            <i class="fas fa-fw fa-chart-area"></i>
-            <span>TIMELINES</span></a>
+
     </li>
 
        <!-- Divider -->
@@ -56,12 +69,19 @@
            FINANCE
        </div>
 
-       <!-- Nav Item - Pages Collapse Menu -->
        <li class="nav-item">
-           <a class="nav-link" href="{{ route('invoice.index') }}">
-               <i class="fas fa-fw fa-chart-area"></i>
-               <span>INVOICE</span></a>
-       </li>
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>FINANCE</span>
+        </a>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Invoice Components:</h6>
+                <a class="collapse-item" href="{{ route('invoice.index') }}">Invoice</a>
+            </div>
+        </div>
+    </li>
 
 
     {{-- <!-- Nav Item - Utilities Collapse Menu -->

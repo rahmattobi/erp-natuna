@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-use Barryvdh\DomPDF\Facade\Pdf;
+// use Barryvdh\DomPDF\Facade\Pdf;
+use PDF;
 use App\Models\invoice;
 use Illuminate\Http\Request;
 use App\Models\invoice_detail;
 use Illuminate\Support\Facades\DB;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InvoiceController extends Controller
 {
@@ -13,7 +15,6 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = invoice::all();
-        // $invoice_detail = invoice_detail::all();
         return view('invoice.index',compact('invoices'));
     }
 
@@ -22,9 +23,9 @@ class InvoiceController extends Controller
         return view('invoice.input');
     }
 
-    public function inputDetail()
+    public function inputDetail($id)
     {
-        $invoice = invoice::all();
+        $invoice = invoice::where('id', $id)->first();
         return view('invoice.inputDetail',compact('invoice'));
     }
 
@@ -43,19 +44,12 @@ class InvoiceController extends Controller
             'harga' => $request->input('harga'),
         ]);
 
-        $invoice = invoice::where('id', $id)->first();
-        $invoice_detail = DB::table('invoices')
-        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->select('invoice_details.id','invoice_details.kuantitas', 'invoice_details.harga', 'invoice_details.keterangan')
-        ->get();
-        return view('invoice.show',compact('invoice','invoice_detail'));
-
+        return redirect()->route('invoice.view',$id)->with('success', 'Invoices updated successfully');
     }
 
     public function store(Request $request)
     {
 
-         // Access the dynamic input values as arrays
          $kuantitas = $request->input('kuantitas');
          $harga = $request->input('harga');
          $keterangan = $request->input('keterangan');
@@ -89,31 +83,26 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $invoice = invoice::where('id', $id)->first();
         $invoice_detail = DB::table('invoices')
         ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
         ->select('invoice_details.id','invoice_details.kuantitas', 'invoice_details.harga', 'invoice_details.keterangan')
+        ->where('invoice_details.invoice_id', '=', $id)
         ->get();
+
         return view('invoice.show',compact('invoice','invoice_detail'));
-        // return response()->json($invoice);
     }
 
-    public function generatePdf($id)
-    {
+    public function viewInvoice($id){
         $invoice = invoice::where('id', $id)->first();
         $invoice_detail = DB::table('invoices')
         ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
         ->select('invoice_details.kuantitas', 'invoice_details.harga', 'invoice_details.keterangan')
         ->get();
-        // return view('invoice.print',compact('invoice','invoice_detail'));
 
-        $pdf = Pdf::loadView('invoice.print',compact('invoice','invoice_detail'))->setOptions(['defaultFont' => 'sans-serif']);;
-        return $pdf->download('invoice.pdf');
+        return view('invoice.print',compact('invoice','invoice_detail'));
     }
 
 
@@ -178,4 +167,6 @@ class InvoiceController extends Controller
         $User->delete();
         return back()->with('success', 'Invoice Deleted successfully');
     }
+
+
 }

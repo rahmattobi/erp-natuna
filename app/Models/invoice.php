@@ -12,7 +12,9 @@ class invoice extends Model
         'nama_client',
         'nama_perusahaan',
         'tanggal',
+        'tempo',
         'no_inv',
+        'inst_plan',
         'tempo',
     ];
 

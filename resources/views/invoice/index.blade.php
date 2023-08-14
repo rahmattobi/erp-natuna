@@ -8,7 +8,7 @@
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-3">
             <h1 class="h3 mb-0 text-gray-800">Invoice</h1>
-            <a href="{{ route('invoice.input') }}" class="d-none d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm"><i
+            <a href="{{ route('invoice.input') }}" class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm"><i
                 class="fas fa-plus fa-sm text-primary-50"></i> Input Invoice</a>
         </div>
 
@@ -30,9 +30,10 @@
                             <tr>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
-                                <th>Tanggal</th>
+                                <th>Tanggal Invoice</th>
                                 <th>No. Invoice</th>
                                 <th>Jatuh Tempo</th>
+                                <th>Status</th>
                                 <th style="width: 100px">Action</th>
                             </tr>
                         </thead>
@@ -43,6 +44,7 @@
                                 <th>Tanggal</th>
                                 <th>No. Invoice</th>
                                 <th>Jatuh Tempo</th>
+                                <th>Status</th>
                                 <th style="width: 100px">Action</th>
                             </tr>
                         </tfoot>
@@ -51,17 +53,18 @@
                                 <tr>
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
-                                    <td>{{ $invoice->tanggal }}</td>
+                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal)->formatLocalized('%e %B %Y') }}
+                                    </td>
                                     <td>{{ $invoice->no_inv }}</td>
-                                    <td>{{ $invoice->tempo }}</td>
+                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tempo)->formatLocalized('%e %B %Y') }}</td>
                                     {{-- <td class="show-read-more">{{ $invoice->end }}</td> --}}
-                                    {{-- <td>
-                                        @if ($invoice->category == 0)
-                                            <span class="badge badge-primary">On Progress</span>
+                                    <td>
+                                        @if ($invoice->status == 0)
+                                            <span class="badge badge-danger">Belum Lunas</span>
                                         @else
-                                            <span class="badge badge-success">Done</span>
+                                            <span class="badge badge-success">Lunas</span>
                                         @endif
-                                    </td> --}}
+                                    </td>
                                     <td>
                                         <div class="btn-group" role="group" >
                                             <a href="{{ route('invoice.view', $invoice->id)}}">

@@ -7,10 +7,8 @@
 
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-3">
-            @foreach ($invoice as $invoice)
             <h1 class="h3 mb-0 text-gray-800">Input data Invoice No.
                 <span style="color: red">{{ $invoice->no_inv }} ({{ $invoice->nama_perusahaan }})</h1></span>
-            @endforeach
         </div>
 
         <div class="row">

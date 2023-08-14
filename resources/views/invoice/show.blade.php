@@ -9,10 +9,10 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-3">
             <h1 class="h3 mb-0 text-gray-800">Invoice Detail</h1>
             <div class="btn-group" role="group" aria-label="Button group example">
-            <a href="{{ route('invoice.inputDetail', $invoice->id) }}" class="d-none d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm" ><i
+            <a href="{{ route('invoice.inputDetail', $invoice->id) }}" class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm" ><i
                 class="fas fa-plus fa-sm text-primary-50"></i> Input Invoice </a>
-            <a href="{{ route('invoice.print', $invoice->id) }}" class="d-none d-sm-inline-block btn btn-sm btn-outline-info shadow-sm" target="_blank"><i
-                class="fas fa-print fa-sm text-primary-50"></i> Print</a>
+            <a href="{{ route('invoice.viewInvoice', $invoice->id) }}" class="d-sm-inline-block btn btn-sm btn-outline-info shadow-sm"><i
+                class="fas fa-print fa-sm text-primary-50"></i> Download Invoice</a>
             </div>
         </div>
         <div class="row">
@@ -27,11 +27,11 @@
                             @endforeach
                                 <h6><b>Nama Client: </b> {{ $invoice->nama_client }}</h6>
                                 <h6><b>Nama Perusahan: </b> {{ $invoice->nama_perusahaan }}</h6>
-                                <h6><b>Tanggal: </b> {{ $invoice->tanggal }}</h6>
+                                <h6><b>Tanggal Invoice: </b> {{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal)->formatLocalized('%e %B %Y') }}</h6>
                             </div>
                             <div class="col-sm-6">
                                 <h6><b>No. Invoice: </b> {{ $invoice->no_inv }}</h6>
-                                <h6><b>Jatuh Tempo: </b> {{ $invoice->tempo }}</h6>
+                                <h6><b>Jatuh Tempo: </b> {{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tempo)->formatLocalized('%e %B %Y') }}</h6>
                                 <h6><b>Total Harga: </b> <span style="color: red">{{ 'Rp. '.number_format((float)$grandTotal, 2, '.', ',')}} </span></h6>
                             </div>
                         </div>
