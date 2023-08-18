@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Invoice untuk {{ $invoice->nama_client }}</title>
+    <title>Invoice</title>
     <style>
         html,
         body {
@@ -117,16 +117,17 @@
                     </th>
                 </tr>
                 <tr>
+            @foreach($invoice as $invoice_detail)
                     <th class="text-start company-data no-border" width="50%" colspan="2" >
                         <span>Kepada Yth :</span> <br>
                         <span></span> <br>
-                        <span>{{ $invoice->nama_client }}</span> <br>
-                        <span>{{ $invoice->nama_perusahaan }}</span> <br>
+                         <span>{{ $invoice_detail->nama_client }}</span> <br>
+                         <span>{{ $invoice_detail->nama_perusahaan }}</span> <br>
                     </th>
                     <th  width="50%" colspan="2" class="text-start company-data no-border">
-                        <span>Tanggal: {{ \Carbon\Carbon::parse($invoice->tanggal)->format('d F Y', 'id') }}</span> <br>
-                        <span>No. Invoice: {{ $invoice->no_inv }}</span> <br>
-                        <span>Jatuh Tempo: {{ \Carbon\Carbon::parse($invoice->tempo)->format('d F Y', 'id') }}</span>
+                        <span>Tanggal: {{ \Carbon\Carbon::parse($invoice_detail->tanggal)->format('d F Y', 'id') }}</span> <br>
+                        <span>No. Invoice: {{ $invoice_detail->no_inv }}</span> <br>
+                        <span>Jatuh Tempo: {{ \Carbon\Carbon::parse($invoice_detail->tempo)->format('d F Y', 'id') }}</span>
                     </th>
                 </tr>
             </thead>
@@ -147,7 +148,6 @@
                 $nomor = 1;
                 $totalAmount = 0;
             @endphp
-            @foreach($invoice_detail as $invoice_detail)
                 <tr>
                     <td width="5%">{{ $nomor++ }}</td>
                     <td width="40%">

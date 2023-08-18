@@ -175,8 +175,10 @@
                     <small>
                         @if ( Auth::user()->level == 0)
                             Admin
-                        @else
-                            User
+                        @elseif (Auth::user()->level == 1)
+                            CEO
+                        @elseif (Auth::user()->level == 2)
+                            General Manager
                         @endif
                     </small>
                 </span>

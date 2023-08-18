@@ -6,6 +6,7 @@ use PDF;
 use App\Models\invoice;
 use Illuminate\Http\Request;
 use App\Models\invoice_detail;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -15,7 +16,14 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = invoice::all();
-        return view('invoice.index',compact('invoices'));
+        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('SUM(invoice_details.status) as total_status'))
+        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
+        ->where('invoice_details.status', '>=', 0)
+        ->groupBy('invoices.id')
+        ->get();
+
+        return view('invoice.index',compact('result','invoices'));
+
     }
 
     public function create()
@@ -53,17 +61,18 @@ class InvoiceController extends Controller
          $kuantitas = $request->input('kuantitas');
          $harga = $request->input('harga');
          $keterangan = $request->input('keterangan');
+         $tempo = $request->input('tempo');
+         $tanggal = $request->input('tanggal');
 
-        if ($kuantitas == "") {
-        $invoiceModel = invoice::create($request->all());
-        return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
-
+        if ($kuantitas == "" && $keterangan == "" && $harga == "") {
+            return back()->with('danger', 'Lengkapi data dengan benar');
         } else {
 
         $request->validate([
             'kuantitas.*' => 'required',
             'harga.*' => 'required',
             'keterangan.*' => 'required',
+            'tempo.*' => 'required',
         ]);
 
 
@@ -76,10 +85,11 @@ class InvoiceController extends Controller
                 'kuantitas' => $quantity,
                 'harga' => $harga[$key],
                 'keterangan' => $keterangan[$key],
+                'tempo' => $tempo,
+                'tanggal' => $tanggal,
             ]);
         }
-        $invoices = invoice::all();
-        return view('invoice.index',compact('invoices'));
+        return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
         }
     }
 
@@ -88,21 +98,20 @@ class InvoiceController extends Controller
         $invoice = invoice::where('id', $id)->first();
         $invoice_detail = DB::table('invoices')
         ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->select('invoice_details.id','invoice_details.kuantitas', 'invoice_details.harga', 'invoice_details.keterangan')
+        ->select('invoice_details.*')
         ->where('invoice_details.invoice_id', '=', $id)
         ->get();
-
         return view('invoice.show',compact('invoice','invoice_detail'));
     }
 
     public function viewInvoice($id){
-        $invoice = invoice::where('id', $id)->first();
-        $invoice_detail = DB::table('invoices')
-        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->select('invoice_details.kuantitas', 'invoice_details.harga', 'invoice_details.keterangan')
+        $invoice = DB::table('invoice_details')
+        ->join('invoices', 'invoices.id', '=', 'invoice_details.invoice_id')
+        ->select('invoice_details.*','invoices.*')
+        ->where('invoice_details.id', '=', $id)
         ->get();
 
-        return view('invoice.print',compact('invoice','invoice_detail'));
+        return view('invoice.print',compact('invoice'));
     }
 
 
@@ -168,5 +177,48 @@ class InvoiceController extends Controller
         return back()->with('success', 'Invoice Deleted successfully');
     }
 
+    // project
 
+    public function inv_project(){
+        return view("invoice.project.input");
+    }
+
+    public function inputProject(Request $request)
+    {
+        if (!$request->has('nama_client')||!$request->has('nama_perusahaan')||!$request->has('no_inv')) {
+            return back()->with('danger', 'Lengkapi data dengan benar');
+        } else{
+            $invoice = invoice::create($request->all());
+        }
+            $insta_plan = $request->input('inst_plan');
+            for ($i = 1; $i <= $insta_plan; $i++) {
+                    $tanggal = $request->input('tanggal_' . $i);
+                    $carbonDate = Carbon::createFromFormat('Y-m-d', $tanggal);
+                    $kuantitas = $request->input('kuantitas_' . $i);
+                    $keterangan = $request->input('ket_' . $i);
+                    $harga = $request->input('harga_' . $i);
+
+                    invoice_detail::create([
+                        'invoice_id' => $invoice->id,
+                        'kuantitas' => $kuantitas,
+                        'harga' => $harga,
+                        'keterangan' => $keterangan,
+                        'tempo' => $carbonDate->addDays(14),
+                        'tanggal' => $tanggal,
+                    ]);
+            }
+        return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+    }
+
+    public function bayarInvoice($id)
+    {
+        $invoice = invoice_detail::find($id);
+
+        if ($invoice) {
+
+            $invoice->status = 1;
+            $invoice->save();
+            return back()->with('success', 'Status updated successfully.');
+        }
+    }
 }

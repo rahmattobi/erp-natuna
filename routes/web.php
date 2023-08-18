@@ -48,12 +48,15 @@ Route::middleware(['auth'])->group(function () {
     Route::controller(InvoiceController::class)->prefix('invoice')->group(function (){
         Route::get('', 'index')->name('invoice.index');
         Route::get('input', 'create')->name('invoice.input');
+        Route::get('project', 'inv_project')->name('invoice.inv_project');
         Route::get('inputDetail/{id}', 'inputDetail')->name('invoice.inputDetail');
         Route::post('', 'store')->name('invoice.action');
+        Route::post('project', 'inputProject')->name('invoice.inputProject');
         Route::post('{id}', 'actionDetail')->name('invoice.actionDetail');
         Route::get('edit/{id}', 'edit')->name('invoice.edit');
         Route::get('editDetail/{id}', 'editDetail')->name('invoice.editDetail');
         Route::put('update/{id}', 'update')->name('invoice.update');
+        Route::put('bayar/{id}', 'bayarInvoice')->name('invoice.bayar');
         Route::put('edit/{id}', 'updateDetail')->name('invoice.updateDetail');
         Route::delete('deleteInvoiceDetail/{id}', 'deleteInvoiceDetail')->name('invoice.deleteDetail');
         Route::get('{id}', 'show')->name('invoice.view');

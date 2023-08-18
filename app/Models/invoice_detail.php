@@ -12,7 +12,9 @@ class invoice_detail extends Model
         'invoice_id',
         'kuantitas',
         'harga',
-        'keterangan'
+        'tanggal',
+        'keterangan',
+        'tempo'
     ];
 
     public function invoice()

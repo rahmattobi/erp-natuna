@@ -16,6 +16,9 @@ return new class extends Migration
             $table->integer('kuantitas');
             $table->integer('harga');
             $table->text('keterangan');
+            $table->date('tanggal');
+            $table->date('tempo');
+            $table->integer('status')->default(0);
             $table->unsignedBigInteger('invoice_id');
             $table->timestamps();
 

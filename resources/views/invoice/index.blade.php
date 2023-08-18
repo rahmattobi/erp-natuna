@@ -8,8 +8,18 @@
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-3">
             <h1 class="h3 mb-0 text-gray-800">Invoice</h1>
-            <a href="{{ route('invoice.input') }}" class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm"><i
-                class="fas fa-plus fa-sm text-primary-50"></i> Input Invoice</a>
+            {{-- <a href="{{ route('invoice.input') }}" class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm"><i
+                class="fas fa-plus fa-sm text-primary-50"></i> Input Invoice</a> --}}
+            <button class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm dropdown-toggle" type="button"
+                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                <i class="fas fa-plus fa-sm text-primary-50"></i> Input Invoice</a>
+            </button>
+            <div class="dropdown-menu animated--fade-in"
+                aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{{ route('invoice.input') }}">Perbulan</a>
+                <a class="dropdown-item" href="{{ route('invoice.inv_project') }}">Project</a>
+            </div>
         </div>
 
           {{-- alert --}}
@@ -17,7 +27,7 @@
           <div class="alert alert-success" role="alert">
               {{ Session::get('success') }}
           </div>
-      @endif
+         @endif
         {{-- data table --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -30,9 +40,9 @@
                             <tr>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
-                                <th>Tanggal Invoice</th>
+                                {{-- <th>Tanggal Invoice</th> --}}
                                 <th>No. Invoice</th>
-                                <th>Jatuh Tempo</th>
+                                <th>Instalment Plan</th>
                                 <th>Status</th>
                                 <th style="width: 100px">Action</th>
                             </tr>
@@ -41,9 +51,9 @@
                             <tr>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
-                                <th>Tanggal</th>
+                                {{-- <th>Tanggal</th> --}}
                                 <th>No. Invoice</th>
-                                <th>Jatuh Tempo</th>
+                                <th>Instalment Plan</th>
                                 <th>Status</th>
                                 <th style="width: 100px">Action</th>
                             </tr>
@@ -53,36 +63,51 @@
                                 <tr>
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
-                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal)->formatLocalized('%e %B %Y') }}
-                                    </td>
                                     <td>{{ $invoice->no_inv }}</td>
-                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tempo)->formatLocalized('%e %B %Y') }}</td>
-                                    {{-- <td class="show-read-more">{{ $invoice->end }}</td> --}}
+                                    <td>
+                                        @foreach ($result as $row)
+                                            @if ($row->invoice_id == $invoice->id)
+                                                @if ($row->total_status == $invoice->inst_plan)
+                                                    <span class="badge badge-success">Lunas</span>
+                                                @else
+                                                    <span style="color: red"> {{ $row->total_status }}</span>/{{ $invoice->inst_plan }} Dibayar
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </td>
                                     <td>
                                         @if ($invoice->status == 0)
-                                            <span class="badge badge-danger">Belum Lunas</span>
+                                            <span class="badge badge-warning">Belum di Setujui</span>
+                                        @elseif ($invoice->status == 1)
+                                            <span class="badge badge-success">Di Setujui</span>
                                         @else
-                                            <span class="badge badge-success">Lunas</span>
+                                            <span class="badge badge-danger">Revisi</span>
                                         @endif
                                     </td>
                                     <td>
+                                        @if ($invoice->status == 0)
                                         <div class="btn-group" role="group" >
-                                            <a href="{{ route('invoice.view', $invoice->id)}}">
+                                            <a href="{{ route('invoice.view', $invoice->id )}}">
                                                 <button class="btn btn-info"><i class="fas fa-eye"></i></button>
                                             </a>
-                                            <a href="{{ route('invoice.edit', $invoice->id)}}">
+                                            <a href="{{ route('invoice.edit', $invoice->id )}}">
                                                 <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
                                             </a>
-                                            <a href="{{ route('invoice.view', $invoice->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
+                                            <a href="{{ route('invoice.view', $invoice->id ) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}">
                                                 <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                                 @php
-                                                     $data = $invoice->id;
+                                                     $data = $invoice->id ;
                                                 @endphp
                                             </a>
+                                        @else
+                                        <a href="{{ route('invoice.view', $invoice->id )}}">
+                                            <button class="btn btn-info"><i class="fas fa-eye"></i></button>
+                                        </a>
+                                        @endif
                                         </div>
                                     </td>
                                 </tr>
-                            <div class="modal fade" id="deleteModal{{ $invoice->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                            <div class="modal fade" id="deleteModal{{ $invoice->id  }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                                 aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -95,7 +120,7 @@
                                     <div class="modal-body">Do you really want to delete these record ? this process cannot be undone.</div>
                                     <div class="modal-footer">
                                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                                        <form action="{{ route('invoice.delete', $invoice->id) }}" method="POST" id="deleteForm">
+                                        <form action="{{ route('invoice.delete', $invoice->id ) }}" method="POST" id="deleteForm">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-danger">Delete</button>

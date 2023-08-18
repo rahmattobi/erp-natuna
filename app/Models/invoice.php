@@ -11,15 +11,12 @@ class invoice extends Model
     protected $fillable = [
         'nama_client',
         'nama_perusahaan',
-        'tanggal',
-        'tempo',
         'no_inv',
         'inst_plan',
-        'tempo',
     ];
 
     public function invoiceDetail()
     {
-        return $this->hasMany(invoiceDetail::class);
+        return $this->hasMany(invoice_detail::class);
     }
 }

@@ -15,11 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('nama_client');
             $table->string('nama_perusahaan');
-            $table->date('tanggal');
             $table->string('no_inv');
             $table->integer('status')->default(0);
-            $table->integer('inst_plan');
-            $table->date('tempo');
+            $table->integer('inst_plan')->default(1);
             $table->timestamps();
         });
     }
