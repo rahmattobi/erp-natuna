@@ -19,4 +19,9 @@ class invoice extends Model
     {
         return $this->hasMany(invoice_detail::class);
     }
+
+    public function revisions()
+{
+    return $this->hasMany(revisi::class);
+}
 }

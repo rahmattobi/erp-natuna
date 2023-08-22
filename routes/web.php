@@ -63,7 +63,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{id}/print'  , 'generatePdf')->name('invoice.print');
         Route::get('{id}/view'  , 'viewInvoice')->name('invoice.viewInvoice');
         Route::delete('destroy/{id}', 'destroy')->name('invoice.delete');
+        Route::put('revisi/{id}', 'revision')->name('invoice.revisi');
     });
+
+    Route::controller(InvoiceController::class)->prefix('finance')->group(function (){
+        Route::get('', 'finance')->name('finance.index');
+        Route::get('{id}', 'show')->name('finance.showFinance');
+        Route::put('accInvoice/{id}', 'accInvoice')->name('finance.acc');
+        Route::post('/{id}', 'inputRevisi')->name('finance.revisi');
+    });
+
 
     Route::controller(KaryawanController::class)->prefix('user')->group(function (){
         Route::get('', 'index')->name('user.index');

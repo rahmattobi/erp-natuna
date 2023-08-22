@@ -34,25 +34,11 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <h6>Tanggal</h6>
-                                    <input name="tanggal" type="date" value="{{ $invoice->tanggal }}" class= "form-control form-control-select @error('tanggal') is-invalid @enderror">
-                                        @error('tanggal')
-                                            <span class="invalid-feedback"> {{ $message }}</span>
-                                        @enderror
-                                </div>
-                                <div class="form-group">
                                     <h6>No.Invoice</h6>
                                     <input name="no_inv" type="text" value="{{ $invoice->no_inv }}" class= "form-control form-control-select @error('no_inv') is-invalid @enderror">
                                     @error('no_inv')
                                         <span class="invalid-feedback"> {{ $message }}</span>
                                     @enderror
-                                </div>
-                                <div class="form-group">
-                                    <h6>Jatuh Tempo</h6>
-                                    <input name="tempo" type="date" value="{{ $invoice->tempo }}" class= "form-control form-control-select @error('tempo') is-invalid @enderror">
-                                        @error('tempo  ')
-                                            <span class="invalid-feedback"> {{ $message }}</span>
-                                        @enderror
                                 </div>
                                 <div>
                                     <button type="submit" class="btn btn-primary btn-block">Submit</button>

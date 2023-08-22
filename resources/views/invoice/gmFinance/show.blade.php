@@ -86,19 +86,7 @@
                                         <div class="btn-group" role="group" >
                                             <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
                                                 <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
-                                            </a>&nbsp;
-                                            <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
-                                                <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                                @php
-                                                     $data = $invoice_detail->id;
-                                                @endphp
                                             </a>
-                                        </div>
-                                        @elseif ($invoice->status == 2)
-                                        <div class="btn-group" role="group" >
-                                            <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
-                                                <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
-                                            </a> &nbsp;
                                             <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
                                                 <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                                 @php
@@ -118,7 +106,7 @@
                                                 <a href="#">
                                                     <button class="btn btn-secondary">Faktur Pajak</button> &nbsp;
                                                 </a>
-                                            @endif &nbsp;
+                                            @endif
                                             <a href="{{ route('invoice.viewInvoice', $invoice_detail->id)}}" target="_blank">
                                                 <button class="btn btn-info"><i class="fas fa-print"></i></button>
                                             </a>

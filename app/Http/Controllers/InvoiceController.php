@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 // use Barryvdh\DomPDF\Facade\Pdf;
 use PDF;
+use App\Models\revisi;
 use App\Models\invoice;
 use Illuminate\Http\Request;
 use App\Models\invoice_detail;
@@ -13,7 +14,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class InvoiceController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         $invoices = invoice::all();
         $result = Invoice::select('invoices.id as invoice_id', \DB::raw('SUM(invoice_details.status) as total_status'))
@@ -22,13 +23,42 @@ class InvoiceController extends Controller
         ->groupBy('invoices.id')
         ->get();
 
-        return view('invoice.index',compact('result','invoices'));
+        $revisi = DB::table('invoices')
+        ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
+        ->select('revisis.*')
+        ->where('revisis.status', '=', 0)
+        ->get();
 
+        return view('invoice.index',compact('result','invoices','revisi'));
+    }
+
+    // convert number to romawi
+    public function getRomanMonth($monthNumber) {
+        $romans = [
+            'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'
+        ];
+
+        return $romans[$monthNumber - 1];
     }
 
     public function create()
     {
-        return view('invoice.input');
+        $currentMonthNumber = Carbon::now()->month;
+        $romanMonth = $this->getRomanMonth($currentMonthNumber);
+
+        // get no_inv
+        $lastInvoice = invoice::latest()->first();
+        $pattern = '/^(\d+)/';
+        $numbInv = '';
+        if ($lastInvoice != '') {
+
+            if (preg_match($pattern, $lastInvoice->no_inv, $matches)) {
+                $numbInv = $matches[1];  // Angka yang cocok ditemukan di indeks ke-1 array $matches
+                return view('invoice.input',compact('romanMonth','numbInv'));
+            }
+        } else {
+            return view('invoice.input',compact('romanMonth','numbInv'));
+        }
     }
 
     public function inputDetail($id)
@@ -138,13 +168,11 @@ class InvoiceController extends Controller
         $request->validate([
             'nama_client' => 'required',
             'nama_perusahaan' => 'required',
-            'tanggal' => 'required',
             'no_inv' => 'required',
-            'tempo' => 'required',
         ]);
         $invoice = invoice::findOrFail($id);
         $invoice->update($request->all());
-        return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+        return redirect()->route('invoice.finance')->with('success', 'Invoices updated successfully');
 
     }
 
@@ -164,7 +192,6 @@ class InvoiceController extends Controller
     public function deleteInvoiceDetail(string $id){
         $User = invoice_detail::find($id);
         $User->delete();
-        return back()->with('success', 'Invoice Detail Deleted successfully');
     }
 
     /**
@@ -180,7 +207,22 @@ class InvoiceController extends Controller
     // project
 
     public function inv_project(){
-        return view("invoice.project.input");
+        $currentMonthNumber = Carbon::now()->month;
+        $romanMonth = $this->getRomanMonth($currentMonthNumber);
+
+        // get no_inv
+        $lastInvoice = invoice::latest()->first();
+        $pattern = '/^(\d+)/';
+        $numbInv = '';
+        if ($lastInvoice != '') {
+
+            if (preg_match($pattern, $lastInvoice->no_inv, $matches)) {
+                $numbInv = $matches[1];  // Angka yang cocok ditemukan di indeks ke-1 array $matches
+                return view('invoice.project.input',compact('romanMonth','numbInv'));
+            }
+        } else {
+            return view('invoice.project.input',compact('romanMonth','numbInv'));
+        }
     }
 
     public function inputProject(Request $request)
@@ -220,5 +262,82 @@ class InvoiceController extends Controller
             $invoice->save();
             return back()->with('success', 'Status updated successfully.');
         }
+    }
+
+    // GMFinance
+    public function finance()
+    {
+        $invoices = invoice::all();
+        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('SUM(invoice_details.status) as total_status'))
+        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
+        ->where('invoice_details.status', '>=', 0)
+        ->groupBy('invoices.id')
+        ->get();
+
+        $revisi = DB::table('invoices')
+        ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
+        ->select('revisis.*')
+        ->where('revisis.status', '=', 0)
+        ->get();
+
+        return view('invoice.gmFinance.index',compact('result','invoices','revisi'));
+
+    }
+
+    public function accInvoice($id)
+    {
+        $invoice = invoice::find($id);
+
+        if ($invoice) {
+            $invoice->status = 1;
+            $invoice->save();
+            return back()->with('success', 'successfully.');
+        }
+    }
+
+    public function showFinance($id)
+    {
+        $invoice = invoice::where('id', $id)->first();
+        $invoice_detail = DB::table('invoices')
+        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
+        ->select('invoice_details.*')
+        ->where('invoice_details.invoice_id', '=', $id)
+        ->get();
+
+        return view('invoice.gmFinance.show',compact('invoice','invoice_detail'));
+    }
+    public function inputRevisi(Request $request, string $id){
+        revisi::create([
+            'invoice_id' => $id,
+            'revisi' => $request->input('revisi'),
+        ]);
+
+        $invoice = invoice::find($id);
+
+        if ($invoice) {
+            $invoice->status = 2;
+            $invoice->save();
+        }
+
+        return back()->with('success', 'Status updated successfully');
+    }
+
+    public function revision($id)
+    {
+        $invoice = invoice::find($id);
+        $revisi = revisi::where('invoice_id', $id)->get();
+
+        if ($invoice && $revisi->isNotEmpty()) {
+            $invoice->status = 0;
+            $invoice->save();
+
+            foreach ($revisi as $revisi) {
+                $revisi->status = 1;
+                $revisi->save();
+            }
+
+        }
+
+        return back()->with('success', 'Status updated successfully.');
     }
 }

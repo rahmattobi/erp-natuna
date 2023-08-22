@@ -44,7 +44,7 @@
                                 <th>No. Invoice</th>
                                 <th>Instalment Plan</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th style="width: 120px">Action</th>
                             </tr>
                         </thead>
                         <tfoot>
@@ -55,7 +55,7 @@
                                 <th>No. Invoice</th>
                                 <th>Instalment Plan</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th style="width: 120px">Action</th>
                             </tr>
                         </tfoot>
                         <tbody>
@@ -81,16 +81,9 @@
                                         @elseif ($invoice->status == 1)
                                             <span class="badge badge-success">Di Setujui</span>
                                         @else
-                                        <div class="btn-group" role="group" >
-                                            <button class="badge badge-danger open-modal" data-toggle="modal" data-target="#invoiceModal{{ $invoice->id }}">
-                                                Lihat Revisi
-                                            </button>
-                                            <form action="{{ route('invoice.revisi', $invoice->id) }}" method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                    <button class="badge badge-primary" type="submit">Submit Revisi</button>
-                                            </form>
-                                        </div>
+                                        <button class="badge badge-danger open-modal" data-toggle="modal" data-target="#invoiceModal{{ $invoice->id }}">
+                                            Lihat Revisi
+                                        </button>
                                         @endif
                                     </td>
 
@@ -117,41 +110,95 @@
                                     <td>
                                         @if ($invoice->status == 0)
                                         <div class="btn-group" role="group" >
-                                            <a href="{{ route('invoice.view', $invoice->id )}}">
-                                                <button class="btn btn-info"><i class="fas fa-eye"></i></button>
-                                            </a> &nbsp;
-                                            <a href="{{ route('invoice.edit', $invoice->id )}}">
-                                                <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
-                                            </a>  &nbsp;
-                                            <a href="{{ route('invoice.view', $invoice->id ) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}">
-                                                <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                                @php
+                                            <button class="d-sm-inline-block btn btn-warning shadow-sm dropdown-toggle" type="button"
+                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false"> Confirm</a>
+                                            </button>
+                                            <div class="dropdown-menu animated--fade-in"
+                                                aria-labelledby="dropdownMenuButton">
+                                                <form id="myForm" action="{{ route('finance.acc', $invoice->id )}}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                </form>
+                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('myForm').submit();"><i class="fas fa-check"></i> Disetujui</a>
+                                                <a class="dropdown-item" href="" data-toggle="modal" data-target="#inputModal{{ $invoice->id  }}">
+                                                    @php
                                                      $data = $invoice->id ;
-                                                @endphp
-                                            </a>
+                                                    @endphp
+                                               <i class="fas fa-edit" ></i> Revisi</a>
+                                                <a class="dropdown-item" href="{{ route('finance.showFinance', $invoice->id )}}"><i class="fas fa-eye"></i> Lihat</a>
+                                                <a class="dropdown-item" href="{{ route('invoice.edit', $invoice->id )}}"><i class="fas fa-edit"></i> Edit</a>
+                                                <a class="dropdown-item" href="" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}"><i class="fas fa-trash"></i> Hapus
+                                                    @php
+                                                        $data = $invoice->id ;
+                                                     @endphp
+                                               </a>
+                                            </div>
                                         </div>
-                                        @elseif ($invoice->status == 3)
+                                        @elseif ($invoice->status == 2)
                                         <div class="btn-group" role="group" >
-                                            <a href="{{ route('invoice.view', $invoice->id )}}">
-                                                <button class="btn btn-info"><i class="fas fa-eye"></i></button>
-                                            </a> &nbsp;
-                                            <a href="{{ route('invoice.edit', $invoice->id )}}">
-                                                <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
-                                            </a>  &nbsp;
-                                            <a href="{{ route('invoice.view', $invoice->id ) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}">
-                                                <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                                @php
-                                                     $data = $invoice->id ;
-                                                @endphp
-                                            </a>
+                                            <button class="d-sm-inline-block btn btn-warning shadow-sm dropdown-toggle" type="button"
+                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false"> Confirm</a>
+                                            </button>
+                                            <div class="dropdown-menu animated--fade-in"
+                                                aria-labelledby="dropdownMenuButton">
+                                                <form id="myForm" action="{{ route('finance.acc', $invoice->id )}}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                </form>
+                                               <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('myForm').submit();"><i class="fas fa-check"></i> Disetujui</a>
+                                                <a class="dropdown-item" href="{{ route('finance.showFinance', $invoice->id )}}"><i class="fas fa-eye"></i> Lihat</a>
+                                                <a class="dropdown-item" href="{{ route('invoice.edit', $invoice->id )}}"><i class="fas fa-edit"></i> Edit</a>
+                                                <a class="dropdown-item" href="" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}"><i class="fas fa-trash"></i> Hapus
+                                                    @php
+                                                        $data = $invoice->id ;
+                                                     @endphp
+                                               </a>
+                                            </div>
                                         </div>
                                         @else
-                                        <a href="{{ route('invoice.view', $invoice->id )}}">
+                                        <a href="{{ route('finance.showFinance', $invoice->id )}}">
                                             <button class="btn btn-info"><i class="fas fa-eye"></i></button>
+                                        </a>
+                                        <a href="{{ route('invoice.edit', $invoice->id )}}">
+                                            <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                        </a>
+                                        <a href="{{ route('finance.showFinance', $invoice->id ) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}">
+                                            <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                            @php
+                                                 $data = $invoice->id ;
+                                            @endphp
                                         </a>
                                         @endif
                                     </td>
                                 </tr>
+                                <div class="modal fade" id="inputModal{{ $invoice->id }}" tabindex="-1" aria-labelledby="inputModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="inputModalLabel">Input Revisi</h5>
+                                          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                          <form action="{{ route('finance.revisi', $invoice->id) }}" method="POST">
+                                            @csrf
+                                            <div class="mb-3">
+                                              <label for="inputField" class="form-label">Input Revisi</label>
+                                              <textarea name="revisi" class="form-control" id="inputField" placeholder="Input Revisi" id="" cols="30" rows="5"></textarea>
+                                            </div>
+                                            <!-- Add more form fields as needed -->
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </form>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                             <div class="modal fade" id="deleteModal{{ $invoice->id  }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                                 aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -181,13 +228,6 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {
-        $('.open-modal').click(function() {
-            var targetModal = $(this).data('target');
-            $(targetModal).modal('show');
-        });
-    });
-</script>
 @endsection
+
 

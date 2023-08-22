@@ -36,9 +36,16 @@
                                         @enderror
                                     </div>
                                 </div>
+                                @php
+                                  use Carbon\Carbon;
+                                @endphp
                                 <div class="form-group">
                                     <h6>No.Invoice</h6>
-                                    <input name="no_inv" type="text" class= "form-control form-control-select @error('no_inv') is-invalid @enderror">
+                                    @if ($numbInv == '')
+                                        <input name="no_inv" type="text" value="{{ str_pad(23, 3, '0', STR_PAD_LEFT) }}/NGE/INV/FIN/{{ $romanMonth }}/{{ Carbon::now()->year }}" class= "form-control form-control-select @error('no_inv') is-invalid @enderror" readonly>
+                                    @else
+                                    <input name="no_inv" type="text" value="{{ str_pad(($numbInv+1), 3, '0', STR_PAD_LEFT) }}/NGE/INV/FIN/{{ $romanMonth }}/{{ Carbon::now()->year }}" class= "form-control form-control-select @error('no_inv') is-invalid @enderror" readonly>
+                                    @endif
                                     @error('no_inv')
                                         <span class="invalid-feedback"> {{ $message }}</span>
                                     @enderror
