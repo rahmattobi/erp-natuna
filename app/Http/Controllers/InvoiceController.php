@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 // use Barryvdh\DomPDF\Facade\Pdf;
 use PDF;
+use App\Models\pajak;
 use App\Models\revisi;
 use App\Models\invoice;
 use Illuminate\Http\Request;
@@ -14,14 +15,15 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class InvoiceController extends Controller
 {
 
-    public function index(Request $request)
+    public function index()
     {
         $invoices = invoice::all();
-        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('SUM(invoice_details.status) as total_status'))
+        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('COUNT(*) as total_status'))
         ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->where('invoice_details.status', '>=', 0)
+        ->where('invoice_details.status', '>', 0)
         ->groupBy('invoices.id')
         ->get();
+
 
         $revisi = DB::table('invoices')
         ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
@@ -131,7 +133,10 @@ class InvoiceController extends Controller
         ->select('invoice_details.*')
         ->where('invoice_details.invoice_id', '=', $id)
         ->get();
-        return view('invoice.show',compact('invoice','invoice_detail'));
+
+        $pajaks = pajak::all();
+
+        return view('invoice.show',compact('invoice','invoice_detail','pajaks'));
     }
 
     public function viewInvoice($id){
@@ -264,13 +269,30 @@ class InvoiceController extends Controller
         }
     }
 
+    public function inputPajak(Request $request){
+
+        $id_invdetail = $request->input('id');
+        pajak::create([
+            'id_invoice_detail' => $id_invdetail,
+            'ntpn' => $request->input('ntpn')
+        ]);
+
+        $invoiceDetail = invoice_detail::find($id_invdetail);
+
+        if ($invoiceDetail) {
+            $invoiceDetail->status = 2;
+            $invoiceDetail->save();
+        return back()->with('success', 'Status updated successfully.');
+        }
+    }
+
     // GMFinance
     public function finance()
     {
         $invoices = invoice::all();
-        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('SUM(invoice_details.status) as total_status'))
+        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('COUNT(*) as total_status'))
         ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->where('invoice_details.status', '>=', 0)
+        ->where('invoice_details.status', '>', 0)
         ->groupBy('invoices.id')
         ->get();
 

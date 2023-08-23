@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{id}/view'  , 'viewInvoice')->name('invoice.viewInvoice');
         Route::delete('destroy/{id}', 'destroy')->name('invoice.delete');
         Route::put('revisi/{id}', 'revision')->name('invoice.revisi');
+        Route::post('pajak/{id}', 'inputPajak')->name('invoice.pajak');
     });
 
     Route::controller(InvoiceController::class)->prefix('finance')->group(function (){
