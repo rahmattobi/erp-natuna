@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-12 col-md-6 mb-4">
+            <div class="col-xl-12 mb-4">
                 <div class="card border-left-primary shadow">
                     <div class="card-body">
                         <div class="form-group row">
@@ -27,9 +27,6 @@
                             @endforeach
                                 <h6><b>Nama Client: </b> {{ $invoice->nama_client }}</h6>
                                 <h6><b>Nama Perusahan: </b> {{ $invoice->nama_perusahaan }}</h6>
-                            </div>
-                            <div class="col-sm-6">
-                                <h6><b>No. Invoice: </b> {{ $invoice->no_inv }}</h6>
                                 <h6><b>Total Harga: </b> <span style="color: red">{{ 'Rp. '.number_format((float)$grandTotal, 2, '.', ',')}} </span></h6>
                             </div>
                         </div>
@@ -38,7 +35,16 @@
             </div>
         </div>
 
-
+         {{-- alert --}}
+         @if (Session::has('success'))
+         <div class="alert alert-success" role="alert">
+             {{ Session::get('success') }}
+         </div>
+         @elseif (Session::has('danger'))
+         <div class="alert alert-danger" role="alert">
+             {{ Session::get('danger') }}
+         </div>
+        @endif
         {{-- data table --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -50,6 +56,7 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>No.Invoice</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Tempo</th>
                                 <th>Keterangan</th>
@@ -62,6 +69,7 @@
                         <tfoot>
                             <tr>
                                 <th>No.</th>
+                                <th>No.Invoice</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Tempo</th>
                                 <th>Keterangan</th>
@@ -75,6 +83,11 @@
                             @foreach ($invoice_detail as $invoice_detail)
                                 <tr>
                                     <td>{{ $counter++ }}</td>
+                                    <td>@if ($invoice_detail->no_inv == null)
+                                        Invoice Belum Diterbitkan
+                                    @else
+                                        {{ $invoice_detail->no_inv }}
+                                    @endif</td>
                                     <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice_detail->tanggal)->formatLocalized('%e %B %Y') }}</td>
                                     <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice_detail->tempo)->formatLocalized('%e %B %Y') }}</td>
                                     <td>{{ $invoice_detail->keterangan }}</td>
@@ -86,7 +99,19 @@
                                         <div class="btn-group" role="group" >
                                             <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
                                                 <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                            </a>&nbsp;
+                                            <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
+                                                <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                @php
+                                                     $data = $invoice_detail->id;
+                                                @endphp
                                             </a>
+                                        </div>
+                                        @elseif ($invoice->status == 2)
+                                        <div class="btn-group" role="group" >
+                                            <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
+                                                <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                            </a> &nbsp;
                                             <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
                                                 <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                                 @php
@@ -97,22 +122,106 @@
                                         @else
                                         <div class="btn-group" role="group" >
                                             @if ($invoice_detail->status == 0)
+
+                                                <a href="{{ route('invoice.terbitkanInvoice', $invoice_detail->id)}}">
+                                                    <button class="btn btn-info"><i class="fas fa-print"> Terbitkan Invoice</i></button>
+                                                </a> &nbsp;
+                                                <div class="btn-group" role="group" >
+                                                    <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
+                                                        <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                                    </a>  &nbsp;
+                                                    <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
+                                                        <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                        @php
+                                                             $data = $invoice_detail->id;
+                                                        @endphp
+                                                    </a>
+                                                </div>
+                                            @elseif ($invoice_detail->status == 1)
+                                                <a href="{{ route('invoice.printInvoice', $invoice_detail->id)}}" target="_blank">
+                                                    <button class="btn btn-info"><i class="fas fa-print"></i></button>
+                                                </a> &nbsp;
                                                 <form action="{{ route('invoice.bayar', $invoice_detail->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
-                                                        <button class="btn btn-success" type="submit"><i class="fas fa-check"></i></button>
-                                                </form>
-                                            @else
-                                                <a href="#">
-                                                    <button class="btn btn-secondary">Faktur Pajak</button> &nbsp;
-                                                </a>
-                                            @endif
-                                            <a href="{{ route('invoice.viewInvoice', $invoice_detail->id)}}" target="_blank">
-                                                <button class="btn btn-info"><i class="fas fa-print"></i></button>
+                                                        <button class="btn btn-primary" type="submit"><i class="fas fa-check">Bayar</i></button>
+                                                </form> &nbsp;
+                                                <div class="btn-group" role="group" >
+                                                    <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
+                                                        <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                                    </a>  &nbsp;
+                                                    <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
+                                                        <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                        @php
+                                                             $data = $invoice_detail->id;
+                                                        @endphp
+                                                    </a>
+                                                </div>
+                                            @elseif ($invoice_detail->status == 2)
+                                            <a href="#">
+                                                <button class="btn btn-secondary" data-toggle="modal" data-target="#inputModal{{ $invoice_detail->id  }}">Faktur Pajak</button> &nbsp;
+                                                @php
+                                                 $data = $invoice_detail->id;
+                                                @endphp
                                             </a>
+                                            @else
+                                            <a href="#">
+                                                <button class="d-sm-inline-block btn btn-m btn-outline-success shadow-m" data-toggle="modal" data-target="#viewModal{{ $invoice_detail->id  }}"><i class="fas fa-eye"></i> No.NTPN</button> &nbsp;
+                                                @php
+                                                 $data = $invoice_detail->id;
+                                                @endphp
+                                            </a>
+                                            @endif
                                         </div>
                                         @endif
                                     </td>
+                                    <div class="modal fade" id="inputModal{{ $invoice_detail->id }}" tabindex="-1" aria-labelledby="inputModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="inputModalLabel">Input No.NTPN</h5>
+                                              <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form action="{{ route('invoice.pajak', $invoice_detail->id) }}" method="POST">
+                                                @csrf
+                                                <div class="mb-3">
+                                                  <label for="inputField" class="form-label">Input No.NTPN</label>
+                                                  <input name="ntpn" type="number" class="form-control" id="inputField" placeholder="No.NTPN" >
+                                                  <input name="id" value="{{ $invoice_detail->id }}" type="number" class="form-control" id="inputField" placeholder="No.NTPN" hidden>
+                                                </div>
+                                                <!-- Add more form fields as needed -->
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                            </form>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                    <div class="modal fade" id="viewModal{{ $invoice_detail->id }}" tabindex="-1" aria-labelledby="inputModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="inputModalLabel">No.NTPN </h5>
+                                              <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                               @foreach ($pajaks as $item)
+                                                    @if ($item->id_invoice_detail == $invoice_detail->id)
+                                                       No. NTPN : {{ $item->ntpn }}
+                                                    @endif
+                                               @endforeach
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
                                 </tr>
                                 <div class="modal fade" id="deleteModal{{ $invoice_detail->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                                     aria-hidden="true">

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('invoice_details', function (Blueprint $table) {
             $table->id();
-            $table->integer('kuantitas');
-            $table->integer('harga');
-            $table->text('keterangan');
+            $table->string('no_inv')->nullable();
+            $table->integer('kuantitas')->nullable();
+            $table->integer('harga')->nullable();
+            $table->text('keterangan')->nullable();
             $table->date('tanggal');
             $table->date('tempo');
             $table->integer('status')->default(0);

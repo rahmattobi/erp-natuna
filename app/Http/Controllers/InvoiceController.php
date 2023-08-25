@@ -45,22 +45,7 @@ class InvoiceController extends Controller
 
     public function create()
     {
-        $currentMonthNumber = Carbon::now()->month;
-        $romanMonth = $this->getRomanMonth($currentMonthNumber);
-
-        // get no_inv
-        $lastInvoice = invoice::latest()->first();
-        $pattern = '/^(\d+)/';
-        $numbInv = '';
-        if ($lastInvoice != '') {
-
-            if (preg_match($pattern, $lastInvoice->no_inv, $matches)) {
-                $numbInv = $matches[1];  // Angka yang cocok ditemukan di indeks ke-1 array $matches
-                return view('invoice.input',compact('romanMonth','numbInv'));
-            }
-        } else {
-            return view('invoice.input',compact('romanMonth','numbInv'));
-        }
+        return view('invoice.input');
     }
 
     public function inputDetail($id)
@@ -139,8 +124,37 @@ class InvoiceController extends Controller
         return view('invoice.show',compact('invoice','invoice_detail','pajaks'));
     }
 
-    public function viewInvoice($id){
-        $invoice = DB::table('invoice_details')
+    public function terbitkanInvoice($id){
+
+            $invoice_detail = invoice_detail::find($id);
+            $currentMonthNumber = Carbon::now()->month;
+            $romanMonth = $this->getRomanMonth($currentMonthNumber);
+            $lastInvoice = invoice_detail::orderByDesc('id')->skip(1)->take(1)->get();
+            $lastInvo = invoice_detail::latest()->first();
+            $pattern = '/^(\d+)/';
+
+        if ($invoice_detail->no_inv == '' ) {
+            if ($lastInvo->no_inv == '' && $lastInvoice->isEmpty()) {
+                $invoice_detail->no_inv = '23/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+                $invoice_detail->status = 1;
+                $invoice_detail->save();
+                return back()->with('success', 'No.Invoice berhasil di terbitkan');
+            }elseif ($lastInvo->no_inv == '' && $lastInvoice[0]->no_inv != '') {
+                if (preg_match($pattern, $lastInvoice[0]->no_inv, $matches)) {
+                    $numbInv = $matches[1]; // Angka yang cocok ditemukan di indeks ke-1 array $matches
+                    $invoice_detail->no_inv = ($numbInv+1).'/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+                    $invoice_detail->status = 1;
+                    $invoice_detail->save();
+                    return back()->with('success', 'No.Invoice berhasil di terbitkan');
+                }
+             }
+        } else {
+            return back()->with('danger', 'No.Invoice Sudah Terbit');
+        }
+    }
+
+    public function printInvoice($id){
+         $invoice = DB::table('invoice_details')
         ->join('invoices', 'invoices.id', '=', 'invoice_details.invoice_id')
         ->select('invoice_details.*','invoices.*')
         ->where('invoice_details.id', '=', $id)
@@ -263,7 +277,7 @@ class InvoiceController extends Controller
 
         if ($invoice) {
 
-            $invoice->status = 1;
+            $invoice->status = 2;
             $invoice->save();
             return back()->with('success', 'Status updated successfully.');
         }
@@ -280,7 +294,7 @@ class InvoiceController extends Controller
         $invoiceDetail = invoice_detail::find($id_invdetail);
 
         if ($invoiceDetail) {
-            $invoiceDetail->status = 2;
+            $invoiceDetail->status = 3;
             $invoiceDetail->save();
         return back()->with('success', 'Status updated successfully.');
         }
@@ -326,7 +340,9 @@ class InvoiceController extends Controller
         ->where('invoice_details.invoice_id', '=', $id)
         ->get();
 
-        return view('invoice.gmFinance.show',compact('invoice','invoice_detail'));
+        $pajaks = pajak::all();
+
+        return view('invoice.gmFinance.show',compact('invoice','invoice_detail','pajaks'));
     }
     public function inputRevisi(Request $request, string $id){
         revisi::create([

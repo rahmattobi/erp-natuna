@@ -60,8 +60,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('edit/{id}', 'updateDetail')->name('invoice.updateDetail');
         Route::delete('deleteInvoiceDetail/{id}', 'deleteInvoiceDetail')->name('invoice.deleteDetail');
         Route::get('{id}', 'show')->name('invoice.view');
-        Route::get('{id}/print'  , 'generatePdf')->name('invoice.print');
-        Route::get('{id}/view'  , 'viewInvoice')->name('invoice.viewInvoice');
+        Route::get('{id}/print'  , 'printInvoice')->name('invoice.printInvoice');
+        Route::get('{id}/view'  , 'terbitkanInvoice')->name('invoice.terbitkanInvoice');
         Route::delete('destroy/{id}', 'destroy')->name('invoice.delete');
         Route::put('revisi/{id}', 'revision')->name('invoice.revisi');
         Route::post('pajak/{id}', 'inputPajak')->name('invoice.pajak');
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(InvoiceController::class)->prefix('finance')->group(function (){
         Route::get('', 'finance')->name('finance.index');
-        Route::get('{id}', 'show')->name('finance.showFinance');
+        Route::get('{id}', 'showFinance')->name('finance.showFinance');
         Route::put('accInvoice/{id}', 'accInvoice')->name('finance.acc');
         Route::post('/{id}', 'inputRevisi')->name('finance.revisi');
     });

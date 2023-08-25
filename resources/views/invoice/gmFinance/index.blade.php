@@ -40,8 +40,6 @@
                             <tr>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
-                                {{-- <th>Tanggal Invoice</th> --}}
-                                <th>No. Invoice</th>
                                 <th>Instalment Plan</th>
                                 <th>Status</th>
                                 <th style="width: 120px">Action</th>
@@ -51,8 +49,6 @@
                             <tr>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
-                                {{-- <th>Tanggal</th> --}}
-                                <th>No. Invoice</th>
                                 <th>Instalment Plan</th>
                                 <th>Status</th>
                                 <th style="width: 120px">Action</th>
@@ -63,17 +59,20 @@
                                 <tr>
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
-                                    <td>{{ $invoice->no_inv }}</td>
                                     <td>
-                                        @foreach ($result as $row)
-                                            @if ($row->invoice_id == $invoice->id)
-                                                @if ($row->total_status == $invoice->inst_plan)
-                                                    <span class="badge badge-success">Lunas</span>
-                                                @else
-                                                    <span style="color: red"> {{ $row->total_status }}</span>/{{ $invoice->inst_plan }} Dibayar
+                                        @if ($result->isEmpty())
+                                            <span style="color: red">0</span>/{{ $invoice->inst_plan }} Dibayar
+                                        @else
+                                            @foreach ($result as $row)
+                                                @if ($row->invoice_id == $invoice->id)
+                                                    @if ($row->total_status == $invoice->inst_plan)
+                                                        <span class="badge badge-success">Lunas</span>
+                                                    @else
+                                                        <span style="color: red">0</span>/{{ $invoice->inst_plan }} Dibayar
+                                                    @endif
                                                 @endif
-                                            @endif
-                                        @endforeach
+                                            @endforeach
+                                        @endif
                                     </td>
                                     <td>
                                         @if ($invoice->status == 0)

@@ -36,7 +36,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                @php
+                                {{-- @php
                                   use Carbon\Carbon;
                                 @endphp
                                 <div class="form-group">
@@ -49,7 +49,7 @@
                                     @error('no_inv')
                                         <span class="invalid-feedback"> {{ $message }}</span>
                                     @enderror
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <h6>Tanggal Invoice</h6>
                                     <input value="{{ \Carbon\Carbon::createFromFormat('Y-m-d', now()->toDateString())->formatLocalized('%e %B %Y') }}" id="start_date"  name="" type="text" class= "form-control form-control-select @error('tanggal') is-invalid @enderror" disabled>

@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-12 col-md-6 mb-4">
+            <div class="col-xl-12 mb-4">
                 <div class="card border-left-primary shadow">
                     <div class="card-body">
                         <div class="form-group row">
@@ -27,9 +27,6 @@
                             @endforeach
                                 <h6><b>Nama Client: </b> {{ $invoice->nama_client }}</h6>
                                 <h6><b>Nama Perusahan: </b> {{ $invoice->nama_perusahaan }}</h6>
-                            </div>
-                            <div class="col-sm-6">
-                                <h6><b>No. Invoice: </b> {{ $invoice->no_inv }}</h6>
                                 <h6><b>Total Harga: </b> <span style="color: red">{{ 'Rp. '.number_format((float)$grandTotal, 2, '.', ',')}} </span></h6>
                             </div>
                         </div>
@@ -38,7 +35,16 @@
             </div>
         </div>
 
-
+         {{-- alert --}}
+         @if (Session::has('success'))
+         <div class="alert alert-success" role="alert">
+             {{ Session::get('success') }}
+         </div>
+         @elseif (Session::has('danger'))
+         <div class="alert alert-danger" role="alert">
+             {{ Session::get('danger') }}
+         </div>
+        @endif
         {{-- data table --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -50,6 +56,7 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>No.Invoice</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Tempo</th>
                                 <th>Keterangan</th>
@@ -62,6 +69,7 @@
                         <tfoot>
                             <tr>
                                 <th>No.</th>
+                                <th>No.Invoice</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Tempo</th>
                                 <th>Keterangan</th>
@@ -75,6 +83,11 @@
                             @foreach ($invoice_detail as $invoice_detail)
                                 <tr>
                                     <td>{{ $counter++ }}</td>
+                                    <td>@if ($invoice_detail->no_inv == null)
+                                        Invoice Belum Diterbitkan
+                                    @else
+                                        {{ $invoice_detail->no_inv }}
+                                    @endif</td>
                                     <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice_detail->tanggal)->formatLocalized('%e %B %Y') }}</td>
                                     <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice_detail->tempo)->formatLocalized('%e %B %Y') }}</td>
                                     <td>{{ $invoice_detail->keterangan }}</td>
@@ -109,29 +122,33 @@
                                         @else
                                         <div class="btn-group" role="group" >
                                             @if ($invoice_detail->status == 0)
-                                                <form action="{{ route('invoice.bayar', $invoice_detail->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                        <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i></button>
-                                                </form>
-                                            @elseif ($invoice_detail->status == 2)
-                                                <a href="#">
-                                                    <button class="d-sm-inline-block btn btn-m btn-outline-success shadow-m" data-toggle="modal" data-target="#viewModal{{ $invoice_detail->id  }}"><i class="fas fa-eye"></i> No.NTPN</button> &nbsp;
-                                                    @php
-                                                     $data = $invoice_detail->id;
-                                                    @endphp
+                                                <a href="{{ route('invoice.terbitkanInvoice', $invoice_detail->id)}}">
+                                                    <button class="btn btn-info"><i class="fas fa-print"> Terbitkan Invoice</i></button>
                                                 </a>
-                                            @else
-                                                <a href="#">
-                                                    <button class="btn btn-secondary" data-toggle="modal" data-target="#inputModal{{ $invoice_detail->id  }}">Faktur Pajak</button> &nbsp;
-                                                    @php
-                                                     $data = $invoice_detail->id;
-                                                    @endphp
-                                                </a>
-                                            @endif &nbsp;
-                                            <a href="{{ route('invoice.viewInvoice', $invoice_detail->id)}}" target="_blank">
+                                            @elseif ($invoice_detail->status == 1)
+                                            <a href="{{ route('invoice.printInvoice', $invoice_detail->id)}}" target="_blank">
                                                 <button class="btn btn-info"><i class="fas fa-print"></i></button>
+                                            </a> &nbsp;
+                                            <form action="{{ route('invoice.bayar', $invoice_detail->id) }}" method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                    <button class="btn btn-primary" type="submit"><i class="fas fa-check">Bayar</i></button>
+                                            </form>
+                                            @elseif ($invoice_detail->status == 2)
+                                            <a href="#">
+                                                <button class="btn btn-secondary" data-toggle="modal" data-target="#inputModal{{ $invoice_detail->id  }}">Faktur Pajak</button> &nbsp;
+                                                @php
+                                                 $data = $invoice_detail->id;
+                                                @endphp
                                             </a>
+                                            @else
+                                            <a href="#">
+                                                <button class="d-sm-inline-block btn btn-m btn-outline-success shadow-m" data-toggle="modal" data-target="#viewModal{{ $invoice_detail->id  }}"><i class="fas fa-eye"></i> No.NTPN</button> &nbsp;
+                                                @php
+                                                 $data = $invoice_detail->id;
+                                                @endphp
+                                            </a>
+                                            @endif
                                         </div>
                                         @endif
                                     </td>
