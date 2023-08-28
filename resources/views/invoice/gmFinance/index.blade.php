@@ -60,19 +60,15 @@
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
                                     <td>
-                                        @if ($result->isEmpty())
-                                            <span style="color: red">0</span>/{{ $invoice->inst_plan }} Dibayar
-                                        @else
-                                            @foreach ($result as $row)
-                                                @if ($row->invoice_id == $invoice->id)
-                                                    @if ($row->total_status == $invoice->inst_plan)
-                                                        <span class="badge badge-success">Lunas</span>
-                                                    @else
-                                                        <span style="color: red">0</span>/{{ $invoice->inst_plan }} Dibayar
-                                                    @endif
+                                        @foreach ($result as $row)
+                                            @if ($invoice->id == $row->invoice_id)
+                                                @if ($row->total_status == $invoice->inst_plan)
+                                                    <span class="badge badge-success">Lunas</span>
+                                                @else
+                                                    <span style="color: red">{{ $row->total_status }}</span>/{{ $invoice->inst_plan }} Dibayar
                                                 @endif
-                                            @endforeach
-                                        @endif
+                                            @endif
+                                        @endforeach
                                     </td>
                                     <td>
                                         @if ($invoice->status == 0)

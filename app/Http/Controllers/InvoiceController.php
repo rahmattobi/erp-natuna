@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 // use Barryvdh\DomPDF\Facade\Pdf;
 use PDF;
 use App\Models\pajak;
+use App\Models\no_inv;
 use App\Models\revisi;
 use App\Models\invoice;
 use Illuminate\Http\Request;
 use App\Models\invoice_detail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InvoiceController extends Controller
@@ -18,12 +20,14 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = invoice::all();
-        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('COUNT(*) as total_status'))
-        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->where('invoice_details.status', '>', 0)
-        ->groupBy('invoices.id')
+        $result = DB::table('invoices as i')
+        ->leftJoin('invoice_details as d', function ($join) {
+            $join->on('i.id', '=', 'd.invoice_id')
+                ->where('d.status', '>=', 2);
+        })
+        ->select('i.id as invoice_id', DB::raw('COALESCE(COUNT(d.status), 0) as total_status'))
+        ->groupBy('i.id')
         ->get();
-
 
         $revisi = DB::table('invoices')
         ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
@@ -106,7 +110,15 @@ class InvoiceController extends Controller
                 'tanggal' => $tanggal,
             ]);
         }
-        return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+            if (Auth::check()) {
+                $user = Auth::user();
+                if ($user->level == 5) {
+                    return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+
+                } else {
+                    return redirect()->route('finance.index')->with('success', 'Invoices updated successfully');
+                }
+            }
         }
     }
 
@@ -130,27 +142,51 @@ class InvoiceController extends Controller
             $currentMonthNumber = Carbon::now()->month;
             $romanMonth = $this->getRomanMonth($currentMonthNumber);
             $lastInvoice = invoice_detail::orderByDesc('id')->skip(1)->take(1)->get();
-            $lastInvo = invoice_detail::latest()->first();
             $pattern = '/^(\d+)/';
 
-        if ($invoice_detail->no_inv == '' ) {
-            if ($lastInvo->no_inv == '' && $lastInvoice->isEmpty()) {
-                $invoice_detail->no_inv = '23/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
-                $invoice_detail->status = 1;
-                $invoice_detail->save();
-                return back()->with('success', 'No.Invoice berhasil di terbitkan');
-            }elseif ($lastInvo->no_inv == '' && $lastInvoice[0]->no_inv != '') {
-                if (preg_match($pattern, $lastInvoice[0]->no_inv, $matches)) {
-                    $numbInv = $matches[1]; // Angka yang cocok ditemukan di indeks ke-1 array $matches
-                    $invoice_detail->no_inv = ($numbInv+1).'/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+            if ($invoice_detail->no_inv == '') {
+                $noinv = new no_inv();
+                $no_inv = no_inv::latest()->first();
+                if ($no_inv == '') {
+                    $noinv->no_inv = '23/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+                    $noinv->save();
+
+                    $no_invo = no_inv::latest()->first();
+                    $invoice_detail->no_inv = $no_invo->no_inv;
                     $invoice_detail->status = 1;
                     $invoice_detail->save();
                     return back()->with('success', 'No.Invoice berhasil di terbitkan');
+                } else {
+                    if (preg_match($pattern, $no_inv->no_inv, $matches)) {
+                            $numbInv = $matches[1]; // Angka yang cocok ditemukan di indeks ke-1 array $matches
+                            $no_inv->no_inv = ($numbInv+1).'/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+                            $no_inv->save();
+
+                            $no_invo = no_inv::latest()->first();
+                            $invoice_detail->no_inv = $no_invo->no_inv;
+                            $invoice_detail->status = 1;
+                            $invoice_detail->save();
+                            return back()->with('success', 'No.Invoice berhasil di terbitkan');
+                    }
                 }
-             }
-        } else {
-            return back()->with('danger', 'No.Invoice Sudah Terbit');
-        }
+            }
+
+            // if ($invoice_detail->no_inv == '' && $lastInvo->no_inv == '') {
+            //     $invoice_detail->no_inv = '23/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+            //     $invoice_detail->status = 1;
+            //     $invoice_detail->save();
+            //     return back()->with('success', 'No.Invoice berhasil di terbitkan');
+            // }else {
+            //     if (preg_match($pattern, $lastInvo->no_inv, $matches)) {
+            //         $numbInv = $matches[1]; // Angka yang cocok ditemukan di indeks ke-1 array $matches
+            //         $invoice_detail->no_inv = ($numbInv+1).'/NGE/INV/FIN/'.$romanMonth.'/'.Carbon::now()->year;
+            //         $invoice_detail->status = 1;
+            //         $invoice_detail->save();
+            //         return back()->with('success', 'No.Invoice berhasil di terbitkan');
+            //     }
+            //     // print_r($lastInvo->no_inv);
+            //  }
+
     }
 
     public function printInvoice($id){
@@ -226,27 +262,12 @@ class InvoiceController extends Controller
     // project
 
     public function inv_project(){
-        $currentMonthNumber = Carbon::now()->month;
-        $romanMonth = $this->getRomanMonth($currentMonthNumber);
-
-        // get no_inv
-        $lastInvoice = invoice::latest()->first();
-        $pattern = '/^(\d+)/';
-        $numbInv = '';
-        if ($lastInvoice != '') {
-
-            if (preg_match($pattern, $lastInvoice->no_inv, $matches)) {
-                $numbInv = $matches[1];  // Angka yang cocok ditemukan di indeks ke-1 array $matches
-                return view('invoice.project.input',compact('romanMonth','numbInv'));
-            }
-        } else {
-            return view('invoice.project.input',compact('romanMonth','numbInv'));
-        }
+        return view('invoice.project.input');
     }
 
     public function inputProject(Request $request)
     {
-        if (!$request->has('nama_client')||!$request->has('nama_perusahaan')||!$request->has('no_inv')) {
+        if (!$request->has('nama_client')||!$request->has('nama_perusahaan')) {
             return back()->with('danger', 'Lengkapi data dengan benar');
         } else{
             $invoice = invoice::create($request->all());
@@ -268,7 +289,15 @@ class InvoiceController extends Controller
                         'tanggal' => $tanggal,
                     ]);
             }
-        return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->level == 5) {
+                return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+
+            } else {
+                return redirect()->route('finance.index')->with('success', 'Invoices updated successfully');
+            }
+        }
     }
 
     public function bayarInvoice($id)
@@ -304,10 +333,13 @@ class InvoiceController extends Controller
     public function finance()
     {
         $invoices = invoice::all();
-        $result = Invoice::select('invoices.id as invoice_id', \DB::raw('COUNT(*) as total_status'))
-        ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->where('invoice_details.status', '>', 0)
-        ->groupBy('invoices.id')
+        $result = DB::table('invoices as i')
+        ->leftJoin('invoice_details as d', function ($join) {
+            $join->on('i.id', '=', 'd.invoice_id')
+                ->where('d.status', '>=', 2);
+        })
+        ->select('i.id as invoice_id', DB::raw('COALESCE(COUNT(d.status), 0) as total_status'))
+        ->groupBy('i.id')
         ->get();
 
         $revisi = DB::table('invoices')
