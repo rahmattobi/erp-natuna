@@ -4,18 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-class invoice_detail extends Model
+
+class notification extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'notify',
+        'user_id',
         'invoice_id',
-        'kuantitas',
-        'harga',
-        'keterangan',
+        'status',
     ];
-
-    public function invoice()
-    {
-        return $this->belongsTo(invoice::class);
-    }
 }

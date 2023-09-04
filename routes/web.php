@@ -72,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{id}', 'showFinance')->name('finance.showFinance');
         Route::put('accInvoice/{id}', 'accInvoice')->name('finance.acc');
         Route::post('/{id}', 'inputRevisi')->name('finance.revisi');
+        Route::get('preview/{id}', 'preview')->name('finance.preview');
+        Route::get('download/{id}', 'download')->name('finance.download');
     });
 
 

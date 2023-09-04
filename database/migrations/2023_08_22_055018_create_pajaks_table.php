@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('pajaks', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('ntpn');
-            $table->unsignedBigInteger('id_invoice_detail');
+            $table->unsignedBigInteger('id_invoice');
             $table->timestamps();
-            $table->foreign('id_invoice_detail')->references('id')->on('invoice_details')->onDelete('cascade');
+            $table->foreign('id_invoice')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
 

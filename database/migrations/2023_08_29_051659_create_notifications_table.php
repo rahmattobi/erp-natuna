@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_client');
-            $table->string('nama_perusahaan');
+            $table->text('notify');
             $table->integer('status')->default(0);
-            $table->integer('langganan');
-            $table->date('tanggal');
-            $table->date('nextDate');
-            $table->string('no_inv')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('invoice_id')->nullable();
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('invoices');
+        Schema::dropIfExists('notifications');
     }
 };

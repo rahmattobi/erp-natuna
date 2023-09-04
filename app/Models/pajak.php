@@ -9,7 +9,7 @@ class pajak extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'id_invoice_detail',
+        'id_invoice',
         'ntpn',
     ];
 }

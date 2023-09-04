@@ -56,9 +56,6 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>No.Invoice</th>
-                                <th>Tanggal Invoice</th>
-                                <th>Tempo</th>
                                 <th>Keterangan</th>
                                 <th>Kuantitas</th>
                                 <th>Harga</th>
@@ -69,9 +66,6 @@
                         <tfoot>
                             <tr>
                                 <th>No.</th>
-                                <th>No.Invoice</th>
-                                <th>Tanggal Invoice</th>
-                                <th>Tempo</th>
                                 <th>Keterangan</th>
                                 <th>Kuantitas</th>
                                 <th>Harga</th>
@@ -83,13 +77,6 @@
                             @foreach ($invoice_detail as $invoice_detail)
                                 <tr>
                                     <td>{{ $counter++ }}</td>
-                                    <td>@if ($invoice_detail->no_inv == null)
-                                        Invoice Belum Diterbitkan
-                                    @else
-                                        {{ $invoice_detail->no_inv }}
-                                    @endif</td>
-                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice_detail->tanggal)->formatLocalized('%e %B %Y') }}</td>
-                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice_detail->tempo)->formatLocalized('%e %B %Y') }}</td>
                                     <td>{{ $invoice_detail->keterangan }}</td>
                                     <td>{{ $invoice_detail->kuantitas }}</td>
                                     <td>{{ 'Rp. '.number_format((float)$invoice_detail->harga, 2, '.', ',') }}</td>
@@ -121,11 +108,7 @@
                                         </div>
                                         @else
                                         <div class="btn-group" role="group" >
-                                            @if ($invoice_detail->status == 0)
-
-                                                <a href="{{ route('invoice.terbitkanInvoice', $invoice_detail->id)}}">
-                                                    <button class="btn btn-info"><i class="fas fa-print"> Terbitkan Invoice</i></button>
-                                                </a> &nbsp;
+                                            @if ($invoice->status == 0)
                                                 <div class="btn-group" role="group" >
                                                     <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
                                                         <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
@@ -137,33 +120,37 @@
                                                         @endphp
                                                     </a>
                                                 </div>
-                                            @elseif ($invoice_detail->status == 1)
-                                                <a href="{{ route('invoice.printInvoice', $invoice_detail->id)}}" target="_blank">
-                                                    <button class="btn btn-info"><i class="fas fa-print"></i></button>
-                                                </a> &nbsp;
-                                                <form action="{{ route('invoice.bayar', $invoice_detail->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                        <button class="btn btn-primary" type="submit"><i class="fas fa-check">Bayar</i></button>
-                                                </form> &nbsp;
-                                                <div class="btn-group" role="group" >
-                                                    <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
-                                                        <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
-                                                    </a>  &nbsp;
-                                                    <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
-                                                        <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                                        @php
-                                                             $data = $invoice_detail->id;
-                                                        @endphp
-                                                    </a>
-                                                </div>
-                                            @elseif ($invoice_detail->status == 2)
+                                            @elseif ($invoice->status == 1)
+                                            <div class="btn-group" role="group" >
+                                                <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
+                                                    <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                                </a>  &nbsp;
+                                                <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
+                                                    <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                    @php
+                                                         $data = $invoice_detail->id;
+                                                    @endphp
+                                                </a>
+                                            </div>
+                                            @elseif ($invoice->status == 2)
                                             <a href="#">
                                                 <button class="btn btn-secondary" data-toggle="modal" data-target="#inputModal{{ $invoice_detail->id  }}">Faktur Pajak</button> &nbsp;
                                                 @php
                                                  $data = $invoice_detail->id;
                                                 @endphp
                                             </a>
+                                            @elseif ($invoice->status == 5)
+                                            <div class="btn-group" role="group" >
+                                                <a href="{{ route('invoice.editDetail', $invoice_detail->id)}}">
+                                                    <button class="btn btn-warning"><i class="fas fa-edit"></i></button>
+                                                </a>  &nbsp;
+                                                <a href="{{ route('invoice.deleteDetail', $invoice_detail->id) }}" data-toggle="modal" data-target="#deleteModal{{ $invoice->id }}">
+                                                    <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                    @php
+                                                         $data = $invoice_detail->id;
+                                                    @endphp
+                                                </a>
+                                            </div>
                                             @else
                                             <a href="#">
                                                 <button class="d-sm-inline-block btn btn-m btn-outline-success shadow-m" data-toggle="modal" data-target="#viewModal{{ $invoice_detail->id  }}"><i class="fas fa-eye"></i> No.NTPN</button> &nbsp;
@@ -198,26 +185,6 @@
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                                 <button type="submit" class="btn btn-primary">Save changes</button>
                                             </form>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                    <div class="modal fade" id="viewModal{{ $invoice_detail->id }}" tabindex="-1" aria-labelledby="inputModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                          <div class="modal-content">
-                                            <div class="modal-header">
-                                              <h5 class="modal-title" id="inputModalLabel">No.NTPN </h5>
-                                              <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">×</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-body">
-                                               @foreach ($pajaks as $item)
-                                                    @if ($item->id_invoice_detail == $invoice_detail->id)
-                                                       No. NTPN : {{ $item->ntpn }}
-                                                    @endif
-                                               @endforeach
                                             </div>
                                           </div>
                                         </div>

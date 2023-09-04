@@ -7,6 +7,7 @@ use App\Models\pajak;
 use App\Models\no_inv;
 use App\Models\revisi;
 use App\Models\invoice;
+use App\Models\notification;
 use Illuminate\Http\Request;
 use App\Models\invoice_detail;
 use Illuminate\Support\Carbon;
@@ -20,14 +21,14 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = invoice::all();
-        $result = DB::table('invoices as i')
-        ->leftJoin('invoice_details as d', function ($join) {
-            $join->on('i.id', '=', 'd.invoice_id')
-                ->where('d.status', '>=', 2);
-        })
-        ->select('i.id as invoice_id', DB::raw('COALESCE(COUNT(d.status), 0) as total_status'))
-        ->groupBy('i.id')
-        ->get();
+        // $result = DB::table('invoices as i')
+        // ->leftJoin('invoice_details as d', function ($join) {
+        //     $join->on('i.id', '=', 'd.invoice_id')
+        //         ->where('d.status', '>=', 2);
+        // })
+        // ->select('i.id as invoice_id', DB::raw('COALESCE(COUNT(d.status), 0) as total_status'))
+        // ->groupBy('i.id')
+        // ->get();
 
         $revisi = DB::table('invoices')
         ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
@@ -35,7 +36,9 @@ class InvoiceController extends Controller
         ->where('revisis.status', '=', 0)
         ->get();
 
-        return view('invoice.index',compact('result','invoices','revisi'));
+        $pajaks = pajak::all();
+
+        return view('invoice.index',compact('invoices','revisi','pajaks'));
     }
 
     // convert number to romawi
@@ -78,12 +81,14 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
+        $nama_client = $request->input('nama_client');
+        $nama_perusahaan = $request->input('nama_perusahaan');
+        $tanggal = $request->input('tanggal');
+        $langganan = $request->input('langganan');
 
-         $kuantitas = $request->input('kuantitas');
-         $harga = $request->input('harga');
-         $keterangan = $request->input('keterangan');
-         $tempo = $request->input('tempo');
-         $tanggal = $request->input('tanggal');
+        $keterangan = $request->input('keterangan');
+        $kuantitas = $request->input('kuantitas');
+        $harga = $request->input('harga');
 
         if ($kuantitas == "" && $keterangan == "" && $harga == "") {
             return back()->with('danger', 'Lengkapi data dengan benar');
@@ -96,20 +101,37 @@ class InvoiceController extends Controller
             'tempo.*' => 'required',
         ]);
 
+        $currentDate = Carbon::now(); // Mendapatkan tanggal saat ini
+        $newDate = $currentDate->copy()->addMonths($langganan); // Menambah 1 bulan ke tanggal saat ini
 
-        $invoiceModel = invoice::create($request->all());
+        $formattedNewDate = $newDate->format('Y-m-d');
 
-        // Save the data into the database
-        foreach ($kuantitas as $key => $quantity) {
-            invoice_detail::create([
+        $invoiceModel = invoice::create([
+            'nama_client' => $nama_client,
+            'nama_perusahaan' => $nama_perusahaan,
+            'tanggal' => $tanggal,
+            'langganan' => $langganan,
+            'nextDate' => $formattedNewDate,
+        ]);
+
+        if ($invoiceModel) {
+            notification::create([
+                'notify' => 'Invoice terbaru telah diinputkan',
+                'user_id' => auth()->id(),
                 'invoice_id' => $invoiceModel->id,
-                'kuantitas' => $quantity,
-                'harga' => $harga[$key],
-                'keterangan' => $keterangan[$key],
-                'tempo' => $tempo,
-                'tanggal' => $tanggal,
             ]);
+
+            // Save the data into the database
+            foreach ($kuantitas as $key => $quantity) {
+                invoice_detail::create([
+                    'invoice_id' => $invoiceModel->id,
+                    'kuantitas' => $quantity,
+                    'harga' => $harga[$key],
+                    'keterangan' => $keterangan[$key],
+                ]);
+            }
         }
+
             if (Auth::check()) {
                 $user = Auth::user();
                 if ($user->level == 5) {
@@ -138,13 +160,13 @@ class InvoiceController extends Controller
 
     public function terbitkanInvoice($id){
 
-            $invoice_detail = invoice_detail::find($id);
+            $invoice = invoice::find($id);
             $currentMonthNumber = Carbon::now()->month;
             $romanMonth = $this->getRomanMonth($currentMonthNumber);
-            $lastInvoice = invoice_detail::orderByDesc('id')->skip(1)->take(1)->get();
+            $lastInvoice = invoice::orderByDesc('id')->skip(1)->take(1)->get();
             $pattern = '/^(\d+)/';
 
-            if ($invoice_detail->no_inv == '') {
+            if ($invoice->no_inv == '') {
                 $noinv = new no_inv();
                 $no_inv = no_inv::latest()->first();
                 if ($no_inv == '') {
@@ -152,9 +174,9 @@ class InvoiceController extends Controller
                     $noinv->save();
 
                     $no_invo = no_inv::latest()->first();
-                    $invoice_detail->no_inv = $no_invo->no_inv;
-                    $invoice_detail->status = 1;
-                    $invoice_detail->save();
+                    $invoice->no_inv = $no_invo->no_inv;
+                    $invoice->status = 2;
+                    $invoice->save();
                     return back()->with('success', 'No.Invoice berhasil di terbitkan');
                 } else {
                     if (preg_match($pattern, $no_inv->no_inv, $matches)) {
@@ -163,9 +185,9 @@ class InvoiceController extends Controller
                             $no_inv->save();
 
                             $no_invo = no_inv::latest()->first();
-                            $invoice_detail->no_inv = $no_invo->no_inv;
-                            $invoice_detail->status = 1;
-                            $invoice_detail->save();
+                            $invoice->no_inv = $no_invo->no_inv;
+                            $invoice->status = 2;
+                            $invoice->save();
                             return back()->with('success', 'No.Invoice berhasil di terbitkan');
                     }
                 }
@@ -241,7 +263,6 @@ class InvoiceController extends Controller
         $invoice = invoice_detail::findOrFail($id);
         $invoice->update($request->all());
         return redirect()->route('invoice.view',$invoice->invoice_id)->with('success', 'Invoices Detaild updated successfully');
-
     }
 
     public function deleteInvoiceDetail(string $id){
@@ -271,7 +292,11 @@ class InvoiceController extends Controller
             return back()->with('danger', 'Lengkapi data dengan benar');
         } else{
             $invoice = invoice::create($request->all());
-        }
+            notification::create([
+                'notify' => 'Invoice terbaru telah diinputkan',
+                'user_id' => auth()->id(),
+                'invoice_id' => $invoice->id,
+            ]);
             $insta_plan = $request->input('inst_plan');
             for ($i = 1; $i <= $insta_plan; $i++) {
                     $tanggal = $request->input('tanggal_' . $i);
@@ -289,6 +314,8 @@ class InvoiceController extends Controller
                         'tanggal' => $tanggal,
                     ]);
             }
+        }
+
         if (Auth::check()) {
             $user = Auth::user();
             if ($user->level == 5) {
@@ -302,29 +329,28 @@ class InvoiceController extends Controller
 
     public function bayarInvoice($id)
     {
-        $invoice = invoice_detail::find($id);
+        $invoice = invoice::find($id);
 
         if ($invoice) {
 
-            $invoice->status = 2;
+            $invoice->status = 3;
             $invoice->save();
             return back()->with('success', 'Status updated successfully.');
         }
     }
 
-    public function inputPajak(Request $request){
+    public function inputPajak(Request $request,$id){
 
-        $id_invdetail = $request->input('id');
         pajak::create([
-            'id_invoice_detail' => $id_invdetail,
+            'id_invoice' => $id,
             'ntpn' => $request->input('ntpn')
         ]);
 
-        $invoiceDetail = invoice_detail::find($id_invdetail);
+        $invoice = invoice::find($id);
 
-        if ($invoiceDetail) {
-            $invoiceDetail->status = 3;
-            $invoiceDetail->save();
+        if ($invoice) {
+            $invoice->status = 4;
+            $invoice->save();
         return back()->with('success', 'Status updated successfully.');
         }
     }
@@ -333,34 +359,35 @@ class InvoiceController extends Controller
     public function finance()
     {
         $invoices = invoice::all();
-        $result = DB::table('invoices as i')
-        ->leftJoin('invoice_details as d', function ($join) {
-            $join->on('i.id', '=', 'd.invoice_id')
-                ->where('d.status', '>=', 2);
-        })
-        ->select('i.id as invoice_id', DB::raw('COALESCE(COUNT(d.status), 0) as total_status'))
-        ->groupBy('i.id')
-        ->get();
-
         $revisi = DB::table('invoices')
         ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
         ->select('revisis.*')
         ->where('revisis.status', '=', 0)
         ->get();
 
-        return view('invoice.gmFinance.index',compact('result','invoices','revisi'));
+        $pajaks = pajak::all();
+
+        return view('invoice.gmFinance.index',compact('invoices','revisi','pajaks'));
 
     }
 
     public function accInvoice($id)
     {
         $invoice = invoice::find($id);
+        $acc = notification::where('invoice_id', $id)->get();
 
-        if ($invoice) {
+
+        if ($invoice && $acc->isNotEmpty()) {
             $invoice->status = 1;
             $invoice->save();
-            return back()->with('success', 'successfully.');
+
+            foreach ($acc as $acc) {
+                $acc->status = 1;
+                $acc->notify = 'Invoice telah di acc';
+                $acc->save();
+            }
         }
+        return back()->with('success', 'successfully.');
     }
 
     public function showFinance($id)
@@ -372,21 +399,63 @@ class InvoiceController extends Controller
         ->where('invoice_details.invoice_id', '=', $id)
         ->get();
 
-        $pajaks = pajak::all();
 
-        return view('invoice.gmFinance.show',compact('invoice','invoice_detail','pajaks'));
+        return view('invoice.gmFinance.show',compact('invoice','invoice_detail'));
     }
     public function inputRevisi(Request $request, string $id){
-        revisi::create([
-            'invoice_id' => $id,
-            'revisi' => $request->input('revisi'),
-        ]);
 
-        $invoice = invoice::find($id);
+        $revisi = revisi::where('invoice_id', $id)->get();
+        $notify = notification::where('invoice_id', $id)->get();
 
-        if ($invoice) {
-            $invoice->status = 2;
-            $invoice->save();
+        // if ($notify->isNotEmpty()) {
+        //     print_r($notify);
+        // } else {
+        //     print_r('tesst');
+        // }
+
+        if ($notify ->isNotEmpty()) {
+            foreach ($notify as $key => $value) {
+                if ($value != '') {
+                    $value->notify = 'Revisi Pada Invoice';
+                    $value->status = 2;
+                    $value->save();
+                }
+            }
+        }else {
+            notification::create([
+                'notify' => 'Revisi Pada Invoice',
+                'status' => 2,
+                'user_id' => auth()->id(),
+                'invoice_id' => $id,
+            ]);
+        }
+
+
+            $invoice = invoice::find($id);
+
+            if ($invoice) {
+                $invoice->status = 5;
+                $invoice->save();
+            }
+
+            if ($revisi->isEmpty()) {
+                revisi::create([
+                    'invoice_id' => $id,
+                    'revisi' => $request->input('revisi'),
+                ]);
+            } else {
+            foreach ($revisi as $revisi) {
+                if ($revisi->status == 0 | $revisi->status == 1) {
+                    $revisi->revisi = $request->input('revisi');
+                    $revisi->status = 0;
+                    $revisi->save();
+                } else {
+                    revisi::create([
+                        'invoice_id' => $id,
+                        'revisi' => $request->input('revisi'),
+                    ]);
+                }
+            }
         }
 
         return back()->with('success', 'Status updated successfully');
@@ -396,18 +465,42 @@ class InvoiceController extends Controller
     {
         $invoice = invoice::find($id);
         $revisi = revisi::where('invoice_id', $id)->get();
+        $acc = notification::where('invoice_id', $id)->get();
 
-        if ($invoice && $revisi->isNotEmpty()) {
-            $invoice->status = 0;
-            $invoice->save();
+        $invoice->status = 0;
+        $invoice->save();
 
-            foreach ($revisi as $revisi) {
-                $revisi->status = 1;
-                $revisi->save();
-            }
-
+        foreach ($revisi as $revisi) {
+            $revisi->status = 1;
+            $revisi->save();
         }
 
+        foreach ($acc as $acc) {
+            $acc->status = 0;
+            $acc->user_id = auth()->id();
+            $acc->notify = 'Invoice telah di Revisi';
+            $acc->save();
+        }
         return back()->with('success', 'Status updated successfully.');
+    }
+
+    public function preview($id){
+        $invoice = DB::table('invoice_details')
+        ->join('invoices', 'invoices.id', '=', 'invoice_details.invoice_id')
+        ->select('invoice_details.*','invoices.*')
+        ->where('invoices.id', '=', $id)
+        ->get();
+
+        // print_r($invoice);
+
+        $pdf = PDF::loadView('invoice.gmFinance.preview',compact('invoice'));
+        return view('invoice.gmFinance.preview', compact('invoice'));
+    }
+
+    public function download(){
+        $data = []; // Data yang ingin Anda tampilkan di tampilan HTML
+
+        $pdf = PDF::loadView('invoice.gmFinance.preview', $data);
+        return $pdf->download('invoice.gmFinance.preview');
     }
 }
