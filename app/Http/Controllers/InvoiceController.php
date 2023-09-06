@@ -20,7 +20,7 @@ class InvoiceController extends Controller
 
     public function index()
     {
-        $invoices = invoice::all();
+        $invoices = invoice::orderBy('created_at','desc')->get();
         // $result = DB::table('invoices as i')
         // ->leftJoin('invoice_details as d', function ($join) {
         //     $join->on('i.id', '=', 'd.invoice_id')
@@ -212,13 +212,16 @@ class InvoiceController extends Controller
     }
 
     public function printInvoice($id){
-         $invoice = DB::table('invoice_details')
+        $invoice = DB::table('invoice_details')
         ->join('invoices', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->select('invoice_details.*','invoices.*')
-        ->where('invoice_details.id', '=', $id)
+        ->select('invoice_details.*')
+        ->where('invoices.id', '=', $id)
         ->get();
 
-        return view('invoice.print',compact('invoice'));
+        $inv = invoice::find($id);
+        // print_r($invoice);
+
+        return view('invoice.print', compact('invoice','inv'));
     }
 
 
@@ -358,7 +361,7 @@ class InvoiceController extends Controller
     // GMFinance
     public function finance()
     {
-        $invoices = invoice::all();
+        $invoices = invoice::orderBy('created_at','desc')->get();
         $revisi = DB::table('invoices')
         ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
         ->select('revisis.*')
@@ -487,14 +490,17 @@ class InvoiceController extends Controller
     public function preview($id){
         $invoice = DB::table('invoice_details')
         ->join('invoices', 'invoices.id', '=', 'invoice_details.invoice_id')
-        ->select('invoice_details.*','invoices.*')
+        ->select('invoice_details.*')
         ->where('invoices.id', '=', $id)
         ->get();
 
+        $inv = invoice::find($id);
         // print_r($invoice);
 
-        $pdf = PDF::loadView('invoice.gmFinance.preview',compact('invoice'));
-        return view('invoice.gmFinance.preview', compact('invoice'));
+        // $pdf = PDF::loadView('invoice.gmFinance.preview',compact('invoice','inv'));
+        // $pdf->stream("dompdf_out.pdf", array("Attachment" => false));
+        // exit(0);
+        return view('invoice.gmFinance.preview', compact('invoice','inv'));
     }
 
     public function download(){

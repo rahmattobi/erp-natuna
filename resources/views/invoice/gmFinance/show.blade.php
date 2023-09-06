@@ -32,6 +32,8 @@
                         </div>
                     </div>
                 </div>
+                <br>
+            <a class="btn btn-info" href="{{ route('finance.index') }}"><i class="fas fa-list"></i> List Invoice</a>
             </div>
         </div>
 

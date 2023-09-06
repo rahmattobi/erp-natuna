@@ -128,10 +128,11 @@
                                         <div class="btn-group" role="group">
                                             <button class="d-sm-inline-block btn btn-warning shadow-sm dropdown-toggle" type="button"
                                                 id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false"> Confirm</a>
+                                                aria-expanded="false"> Action</a>
                                             </button>
                                             <div class="dropdown-menu animated--fade-in"
                                                 aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" href="{{ route('finance.preview', $invoice->id )}}"><i class="fas fa-print"></i> Preview Invoice</a>
                                                 <a class="dropdown-item" href="{{ route('invoice.view', $invoice->id )}}"><i class="fas fa-eye"></i> Lihat Keterangan</a>
                                                 <a class="dropdown-item" href="{{ route('invoice.edit', $invoice->id )}}"><i class="fas fa-edit"></i> Edit Invoice</a>
                                                 <a class="dropdown-item" href="" data-toggle="modal" data-target="#deleteModal{{ $invoice->id  }}"><i class="fas fa-trash"></i> Hapus Invoice
@@ -172,7 +173,7 @@
                                         </button>
                                             <div class="dropdown-menu animated--fade-in"
                                                 aria-labelledby="dropdownMenuButton">
-                                                <a href="{{ route('invoice.view', $invoice->id )}}" class="dropdown-item">
+                                                <a href="{{ route('invoice.printInvoice', $invoice->id )}}" class="dropdown-item">
                                                     <i class="fas fa-print"></i> Download Invoice
                                                 </a>
                                                  <form id="bayar" action="{{ route('invoice.bayar', $invoice->id )}}" method="POST">
@@ -216,6 +217,7 @@
                                             </button>
                                             <div class="dropdown-menu animated--fade-in"
                                                 aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" href="{{ route('finance.preview', $invoice->id )}}"><i class="fas fa-print"></i> Preview Invoice</a>
                                                 <form id="revisi" action="{{ route('invoice.revisi', $invoice->id )}}" method="POST">
                                                     @csrf
                                                     @method('PUT')
