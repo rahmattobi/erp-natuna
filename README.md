@@ -1,66 +1,19 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## ERP NATUNA GLOBAL EKAPERSADA
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/26696017-e3ff-48af-b9e9-406155a829ed)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/443e239f-8a5f-40e7-aa48-c2bfd133b047)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/0a337c83-a5a2-4fbc-8ce0-f78bae5158ec)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/3d064ae6-b471-4081-b797-4026127766c8)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/ea05d4a5-4072-44d1-af5e-321946712751)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/7fbd8ead-b594-4aaf-a856-0adf27d08ddf)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/424b3644-ee2a-483c-98ff-54f7ebe42680)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/b5bda6ff-35cd-4209-9cd4-f38c27388b42)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/18d573ec-7450-4923-a8cf-b8ea22494305)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/3e73ef37-d7bf-4b9f-9adc-88ddcbccb21d)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/cf48a1d9-4170-4730-abf7-9d5f9391fce6)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/9ac8646a-4d67-4a3c-a247-c4ed9201651d)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/fd6818bd-7650-420d-9fed-4ccb48e7e47c)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/8d7556b6-6862-485f-a579-fb998ca5f74b)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/5e90ec5a-3efb-45e3-b4ae-21148150aeb8)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/3ded7fcc-2c37-4248-882f-6996515507dc)
+![image](https://github.com/rahmattobi/erp-natuna/assets/49316783/c155388a-9351-4c74-b221-089cc84aaf4d)
