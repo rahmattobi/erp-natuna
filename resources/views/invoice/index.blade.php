@@ -42,25 +42,29 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
-                            <tr>
+                             <tr>
                                 <th>No.</th>
                                 <th>No.Invoice</th>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
+                                <th>Langganan</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Jatuh Tempo</th>
+                                <th>Invoice Baru</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tfoot>
-                            <tr>
+                             <tr>
                                 <th>No.</th>
                                 <th>No.Invoice</th>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
+                                <th>Langganan</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Jatuh Tempo</th>
+                                <th>Invoice Baru</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -77,6 +81,7 @@
                                     @endif</td>
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
+                                    <td>{{ $invoice->langganan }} Bulan</td>
                                     <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal)->formatLocalized('%e %B %Y') }}</td>
                                         @php
                                             $invoiceDate = \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal);
@@ -85,6 +90,7 @@
                                             $formattedNewDate = $newDate->formatLocalized('%e %B %Y');
                                         @endphp
                                     <td>{{ $formattedNewDate}}</td>
+                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->nextDate)->formatLocalized('%e %B %Y') }}</td>
                                     <td>
                                         @if ($invoice->status == 0)
                                             <span class="badge badge-warning">Belum di Setujui</span>
@@ -93,7 +99,7 @@
                                         @elseif ($invoice->status == 2)
                                             <span class="badge badge-info">No. Invoice diterbitkan</span>
                                         @elseif ($invoice->status == 3 )
-                                            <span class="badge badge-primary">Lunas</span>
+                                            <span class="badge badge-primary">Belum Input Faktur Pajak</span>
                                         @elseif ($invoice->status == 4 )
                                             <span class="badge badge-success">Done</span>
                                         @else
@@ -196,19 +202,37 @@
                                                 </a>
                                             </div>
                                         @elseif ($invoice->status == 3)
-                                            <a href="#">
-                                                <button class="btn btn-primary" data-toggle="modal" data-target="#inputPajak{{ $invoice->id }}">Input Faktur Pajak</button> &nbsp;
-                                                @php
-                                                 $data = $invoice->id;
-                                                @endphp
-                                            </a>
+                                        <div class="btn-group" role="group" >
+                                            <button class="d-sm-inline-block btn btn-primary shadow-sm dropdown-toggle" type="button"
+                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">Action</a>
+                                            </button>
+                                            <div class="dropdown-menu animated--fade-in"
+                                                aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" href="{{ route('invoice.view', $invoice->id )}}"><i class="fas fa-eye"></i> Lihat Keterangan</a>
+                                                <a class="dropdown-item" href="" data-toggle="modal" data-target="#inputPajak{{ $invoice->id }}"><i class="fas fa-edit"></i> Input Faktur Pajak
+                                                    @php
+                                                        $data = $invoice->id ;
+                                                     @endphp
+                                               </a>
+                                            </div>
+                                        </div>
                                         @elseif ($invoice->status == 4)
-                                            <a href="#">
-                                                <button class="d-sm-inline-block btn btn-m btn-outline-success shadow-m" data-toggle="modal" data-target="#viewModal{{ $invoice->id  }}"><i class="fas fa-eye"></i> No.NTPN</button> &nbsp;
+                                        <div class="btn-group" role="group" >
+                                            <button class="d-sm-inline-block btn btn-success shadow-sm dropdown-toggle" type="button"
+                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">Action</a>
+                                            </button>
+                                            <div class="dropdown-menu animated--fade-in"
+                                            aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="{{ route('invoice.view', $invoice->id )}}"><i class="fas fa-eye"></i> Lihat Keterangan</a>
+                                            <a class="dropdown-item" href="" data-toggle="modal" data-target="#viewModal{{ $invoice->id }}"><i class="fas fa-book"></i> No.NTPN
                                                 @php
-                                                 $data = $invoice->id;
-                                                @endphp
-                                            </a>
+                                                    $data = $invoice->id ;
+                                                 @endphp
+                                           </a>
+                                        </div>
+                                        </div>
                                         @else
                                         <div class="btn-group" role="group" >
                                             <button class="d-sm-inline-block btn btn-danger shadow-sm dropdown-toggle" type="button"

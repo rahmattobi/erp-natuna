@@ -15,16 +15,6 @@
             <h1 class="h3 mb-0 text-gray-800">Invoice</h1>
             <a href="{{ route('invoice.input') }}" class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm"><i
                 class="fas fa-plus fa-sm text-primary-50"></i> Create Invoice</a>
-            {{-- <button class="d-sm-inline-block btn btn-sm btn-outline-primary shadow-sm dropdown-toggle" type="button"
-                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false">
-                <i class="fas fa-plus fa-sm text-primary-50"></i> Input Invoice</a>
-            </button>
-            <div class="dropdown-menu animated--fade-in"
-                aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="{{ route('invoice.input') }}">Perbulan</a>
-                <a class="dropdown-item" href="{{ route('invoice.inv_project') }}">Project</a>
-            </div> --}}
         </div>
 
           {{-- alert --}}
@@ -40,15 +30,17 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table class="table table-bordered" class="display" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
                                 <th>No.</th>
                                 <th>No.Invoice</th>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
+                                <th>Langganan</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Jatuh Tempo</th>
+                                <th>Invoice Baru</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -59,8 +51,10 @@
                                 <th>No.Invoice</th>
                                 <th>Nama Client</th>
                                 <th>Nama Perusahaan</th>
+                                <th>Langganan</th>
                                 <th>Tanggal Invoice</th>
                                 <th>Jatuh Tempo</th>
+                                <th>Invoice Baru</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -77,6 +71,7 @@
                                     @endif</td>
                                     <td>{{ $invoice->nama_client }}</td>
                                     <td>{{ $invoice->nama_perusahaan }}</td>
+                                    <td>{{ $invoice->langganan }} Bulan</td>
                                     <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal)->formatLocalized('%e %B %Y') }}</td>
                                         @php
                                             $invoiceDate = \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->tanggal);
@@ -85,6 +80,7 @@
                                             $formattedNewDate = $newDate->formatLocalized('%e %B %Y');
                                         @endphp
                                     <td>{{ $formattedNewDate}}</td>
+                                    <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $invoice->nextDate)->formatLocalized('%e %B %Y') }}</td>
                                     <td>
                                         @if ($invoice->status == 0)
                                             <span class="badge badge-warning">Belum di Setujui</span>

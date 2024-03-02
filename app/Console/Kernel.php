@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Console;
-
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -12,7 +13,20 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // $schedule->call(function () {
+        //     // Query untuk mengambil invoice dengan duedate kurang dari 7 hari dari sekarang
+        //     $invoices = DB::table('invoices')
+        //         ->whereDate('nextDate', '<=', Carbon::now()->addDays(7)->toDateString())
+        //         ->get();
+
+        //     foreach ($invoices as $invoice) {
+        //         // Kirim notifikasi ke pemilik invoice
+        //         $user = Auth::user();
+        //         if ($user && $user->id <= 2) {
+        //             $user->notify(new DueDateNotification($invoice));
+        //         }
+        //     }
+        // })->daily();
     }
 
     /**

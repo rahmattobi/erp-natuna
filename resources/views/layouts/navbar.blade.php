@@ -53,14 +53,14 @@
                 <i class="fas fa-bell fa-fw"></i>
                 <!-- Counter - Alerts -->
                 @if (Auth::user()->level == 0 | Auth::user()->level == 1 | Auth::user()->level == 2)
-                    @if (($notifications->where('status', 0)->count()) == 0)
+                    @if (($notifications->where('status', 0)->count()) == 0 && $invNotif->count() == 0)
                     @else
-                        <span class="badge badge-danger badge-counter">{{ $notifications->where('status', 0)->count() }}+</span>
+                        <span class="badge badge-danger badge-counter">{{ ($notifications->where('status', 0)->count())+$invNotif->count() }}+</span>
                     @endif
                 @elseif (Auth::user()->level == 5)
-                    @if (($notifications->whereIn('status', [1, 2])->count()) == 0)
+                    @if (($notifications->whereIn('status', [1, 2])->count()) == 0 && $invNotif->count() == 0)
                     @else
-                        <span class="badge badge-danger badge-counter">{{ $notifications->whereIn('status', [1, 2])->count() }}+</span>
+                        <span class="badge badge-danger badge-counter">{{ ($notifications->whereIn('status', [1, 2])->count())+$invNotif->count() }}+</span>
                     @endif
                 @endif
             </a>
@@ -72,6 +72,19 @@
                 </h6>
 
                 @if (Auth::user()->level == 0 | Auth::user()->level == 1 | Auth::user()->level == 2)
+                @foreach ($invNotif as $invNotif)
+                <a class="dropdown-item d-flex align-items-center" href="{{ route('finance.createInv',$invNotif->id) }}">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-warning">
+                            <i class="fas fa-file-alt text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">{{ now()->format('Y-m-d') }}</div>
+                        <span class="font-weight-bold">Invoice {{ $invNotif->nama_client }} perlu diterbitkan pada {{ \Carbon\Carbon::parse($invNotif->nextDate)->format('d F Y') }} </span>
+                    </div>
+                </a>
+                @endforeach
                 @foreach ($notifications->where('status', 0)->sortByDesc('created_at') as $notification)
                 <a class="dropdown-item d-flex align-items-center" href="{{ route('finance.index') }}">
                     <div class="mr-3">
@@ -86,6 +99,19 @@
                 </a>
                 @endforeach
                 @elseif (Auth::user()->level == 5)
+                @foreach ($invNotif as $invNotif)
+                <a class="dropdown-item d-flex align-items-center" href="{{ route('finance.createInv',$invNotif->id) }}">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-warning">
+                            <i class="fas fa-file-alt text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">{{ now()->format('Y-m-d') }}</div>
+                        <span class="font-weight-bold">Invoice {{ $invNotif->nama_client }} perlu diterbitkan pada {{ \Carbon\Carbon::parse($invNotif->nextDate)->format('d F Y') }} </span>
+                    </div>
+                </a>
+                @endforeach
                 @foreach ($notifications->whereIn('status', [1, 2])->sortByDesc('created_at') as $notification)
                 <a class="dropdown-item d-flex align-items-center" href="{{ route('invoice.view', $notification->invoice_id) }}">
                     @if ($notification->status == 2)

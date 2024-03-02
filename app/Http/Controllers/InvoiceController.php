@@ -21,15 +21,6 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = invoice::orderBy('created_at','desc')->get();
-        // $result = DB::table('invoices as i')
-        // ->leftJoin('invoice_details as d', function ($join) {
-        //     $join->on('i.id', '=', 'd.invoice_id')
-        //         ->where('d.status', '>=', 2);
-        // })
-        // ->select('i.id as invoice_id', DB::raw('COALESCE(COUNT(d.status), 0) as total_status'))
-        // ->groupBy('i.id')
-        // ->get();
-
         $revisi = DB::table('invoices')
         ->join('revisis', 'invoices.id', '=', 'revisis.invoice_id')
         ->select('revisis.*')
@@ -367,7 +358,6 @@ class InvoiceController extends Controller
         ->select('revisis.*')
         ->where('revisis.status', '=', 0)
         ->get();
-
         $pajaks = pajak::all();
 
         return view('invoice.gmFinance.index',compact('invoices','revisi','pajaks'));
@@ -508,5 +498,73 @@ class InvoiceController extends Controller
 
         $pdf = PDF::loadView('invoice.gmFinance.preview', $data);
         return $pdf->download('invoice.gmFinance.preview');
+    }
+
+    public function createInv($id){
+        $invoice = invoice::findOrFail($id);
+        $inv = DB::table('invoices')
+            ->join('invoice_details', 'invoices.id', '=', 'invoice_details.invoice_id')
+            ->select('invoice_details.*')
+            ->where('invoices.id', '=', $id)
+            ->get();
+       return view('invoice.gmFinance.createInv',compact('invoice','inv'));
+    }
+
+    public function newInv(Request $request){
+        $nama_client = $request->input('nama_client');
+        $nama_perusahaan = $request->input('nama_perusahaan');
+        $tanggal = $request->input('tanggal');
+        $langganan = $request->input('langganan');
+        $invcount = $request->input('invcount');
+
+        $keterangan = $request->input('keterangan');
+        $kuantitas = $request->input('kuantitas');
+        $harga = $request->input('harga');
+
+        if ($langganan == "") {
+            return back()->with('danger', 'Lengkapi data dengan benar');
+        } else {
+
+        $currentDate = Carbon::now(); // Mendapatkan tanggal saat ini
+        $newDate = $currentDate->copy()->addMonths($langganan); // Menambah 1 bulan ke tanggal saat ini
+
+        $formattedNewDate = $newDate->format('Y-m-d');
+
+        $invoiceModel = invoice::create([
+            'nama_client' => $nama_client,
+            'nama_perusahaan' => $nama_perusahaan,
+            'tanggal' => $tanggal,
+            'langganan' => $langganan,
+            'nextDate' => $formattedNewDate,
+        ]);
+
+        if ($invoiceModel) {
+            notification::create([
+                'notify' => 'Invoice terbaru telah diinputkan',
+                'user_id' => auth()->id(),
+                'invoice_id' => $invoiceModel->id,
+            ]);
+
+            foreach ($kuantitas as $key => $quantity) {
+                invoice_detail::create([
+                    'invoice_id' => $invoiceModel->id,
+                    'kuantitas' => $quantity,
+                    'harga' => $harga[$key],
+                    'keterangan' => $keterangan[$key],
+                ]);
+            }
+
+        }
+
+            if (Auth::check()) {
+                $user = Auth::user();
+                if ($user->level == 5) {
+                    return redirect()->route('invoice.index')->with('success', 'Invoices updated successfully');
+
+                } else {
+                    return redirect()->route('finance.index')->with('success', 'Invoices updated successfully');
+                }
+            }
+        }
     }
 }
